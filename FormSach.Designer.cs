@@ -252,6 +252,7 @@
             this.btTimKiem.TabIndex = 33;
             this.btTimKiem.Text = "Tìm kiếm";
             this.btTimKiem.UseVisualStyleBackColor = true;
+            this.btTimKiem.Click += new System.EventHandler(this.btTimKiem_Click);
             // 
             // lbMaDocGia
             // 

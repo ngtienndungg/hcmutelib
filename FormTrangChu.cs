@@ -132,5 +132,27 @@ namespace LibraryManagement
             formChuyenNganh.Location = new Point(0, 0);
         }
 
+        private void MuonTra_Click(object sender, EventArgs e)
+        {
+            foreach (Form form in this.MdiChildren)
+            {
+                if (form.GetType() == typeof(FormMuonTraSach))
+                {
+                    if (form.WindowState == FormWindowState.Minimized)
+                    {
+                        form.WindowState = FormWindowState.Normal;
+                    }
+                    form.Activate();
+                    return;
+                }
+            }
+            if (ActiveMdiChild != null) ActiveMdiChild.Close();
+            FormMuonTraSach formMuonTraSach = new FormMuonTraSach();
+            formMuonTraSach.MdiParent = this;
+            formMuonTraSach.Show();
+            formMuonTraSach.StartPosition = FormStartPosition.Manual;
+            formMuonTraSach.Location = new Point(0, 0);
+        }
+
     }
 }

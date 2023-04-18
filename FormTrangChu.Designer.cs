@@ -117,8 +117,9 @@
             // mượnSáchToolStripMenuItem
             // 
             this.mượnSáchToolStripMenuItem.Name = "mượnSáchToolStripMenuItem";
-            this.mượnSáchToolStripMenuItem.Size = new System.Drawing.Size(95, 24);
-            this.mượnSáchToolStripMenuItem.Text = "Mượn sách";
+            this.mượnSáchToolStripMenuItem.Size = new System.Drawing.Size(117, 24);
+            this.mượnSáchToolStripMenuItem.Text = "Mượn trả sách";
+            this.mượnSáchToolStripMenuItem.Click += new System.EventHandler(this.MuonTra_Click);
             // 
             // trảSáchToolStripMenuItem
             // 

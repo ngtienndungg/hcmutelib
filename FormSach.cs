@@ -254,5 +254,29 @@ namespace LibraryManagement
 
             LoadData();
         }
+
+        private void btTimKiem_Click(object sender, EventArgs e)
+        {
+            if (tbTimKiemTenSach.Text.Length == 0)
+                LoadData();
+            else
+            {
+                connection = new SqlConnection(connectionString);
+                if (connection.State == ConnectionState.Open) connection.Close();
+                connection.Open();
+
+                SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH", connection);
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH] (@TenSach)";
+                cmd.Parameters.AddWithValue("@TenSach", tbTimKiemTenSach.Text);
+
+
+                dataAdapterSach = new SqlDataAdapter(cmd);
+                dataTableSach = new DataTable();
+                dataTableSach.Clear();
+                dataAdapterSach.Fill(dataTableSach);
+                dgvSach.DataSource = dataTableSach;
+            }
+        }
     }
 }

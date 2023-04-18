@@ -31,3 +31,5 @@ D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\
 D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\obj\Debug\net6.0-windows\LibraryManagement.FormTacGia.resources
 D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\obj\Debug\net6.0-windows\LibraryManagement.DialogThemSach.resources
 D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\obj\Debug\net6.0-windows\LibraryManagement.DialogThemDocGia.resources
+D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\obj\Debug\net6.0-windows\LibraryManagement.DialogChoMuon.resources
+D:\SchoolObjects\Database Management System\Finalterm Project\LibraryManagement\obj\Debug\net6.0-windows\LibraryManagement.FormMuonTraSach.resources

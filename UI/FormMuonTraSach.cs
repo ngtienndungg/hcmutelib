@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,6 +44,9 @@ namespace LibraryManagement
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
                 dgvMuonTra.DataSource = dataTableMuonTra;
+
+                dgvMuonTra.Columns[5].DefaultCellStyle.Format = "dd/MM/yyyy";
+                dgvMuonTra.Columns[6].DefaultCellStyle.Format = "dd/MM/yyyy";
             }
             else if (rbDangMuon.Checked)
             {
@@ -51,6 +55,9 @@ namespace LibraryManagement
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
                 dgvMuonTra.DataSource = dataTableMuonTra;
+
+                dgvMuonTra.Columns[5].DefaultCellStyle.Format = "dd/MM/yyyy";
+                dgvMuonTra.Columns[6].DefaultCellStyle.Format = "dd/MM/yyyy";
             }
             else if (rbDaTra.Checked)
             {
@@ -59,6 +66,9 @@ namespace LibraryManagement
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
                 dgvMuonTra.DataSource = dataTableMuonTra;
+
+                dgvMuonTra.Columns[5].DefaultCellStyle.Format = "dd/MM/yyyy";
+                dgvMuonTra.Columns[6].DefaultCellStyle.Format = "dd/MM/yyyy";
             }
 
         }
@@ -219,9 +229,7 @@ namespace LibraryManagement
         }
 
         private void btTraSach_Click(object sender, EventArgs e)
-        {
-            DialogTraSach traSach = new DialogTraSach();
-            traSach.ShowDialog();
+        {           
             maPhieuMuon = tbMaPhieuMuon.Text;
             maSach = tbMaSach.Text;
             
@@ -230,11 +238,15 @@ namespace LibraryManagement
 
             SqlCommand cmd = new SqlCommand("SELECT [DBO].[TINH_PHAT_TRE_HAN](@NgayHetHan)", conn);
             cmd.CommandType = CommandType.Text;
-            cmd.Parameters.AddWithValue("@NgayHetHan", tbNgayHetHan.Text);
+
+            DateTime date = DateTime.ParseExact(tbNgayHetHan.Text, "dd/MM/yyyy", null);
+            cmd.Parameters.Add("@NgayHetHan", SqlDbType.Date).Value = date;
             SqlDataReader dr = cmd.ExecuteReader();
             dr.Read();
-            
             phatQuaHan = dr.GetDecimal(0);
+
+            DialogTraSach traSach = new DialogTraSach();
+            traSach.ShowDialog();
         }
 
         private void dgvMuonTra_CellClick(object? sender, DataGridViewCellEventArgs? e)
@@ -244,7 +256,9 @@ namespace LibraryManagement
             tbMaPhieuMuon.Text = dgvMuonTra.Rows[r].Cells[0].Value.ToString();
             tbMaNguoiMuon.Text = dgvMuonTra.Rows[r].Cells[1].Value.ToString();
             tbMaSach.Text = dgvMuonTra.Rows[r].Cells[3].Value.ToString();
-            tbNgayHetHan.Text = dgvMuonTra.Rows[r].Cells[6].Value.ToString();
+
+            DateTime date = (DateTime)dgvMuonTra.Rows[r].Cells[6].Value;
+            tbNgayHetHan.Text = date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
         }
     }
 }

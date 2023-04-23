@@ -36,6 +36,8 @@ namespace LibraryManagement
             cbTinhTrang.DataSource = dataTable;
             cbTinhTrang.DisplayMember = "TinhTrangSach";
             cbTinhTrang.ValueMember = "MaTinhTrangSach";
+
+            lbTreHan.Text = lbTreHan.Text + FormMuonTraSach.phatQuaHan.ToString();
         }
 
         private void btTraSach_Click(object sender, EventArgs e)

@@ -57,6 +57,7 @@ namespace LibraryManagement
                 cbGioiTinh.Items.Add("Nữ");
                 cbGioiTinh.Items.Add("Nam");
 
+                dgvDocGia.Columns[4].DefaultCellStyle.Format = "dd/MM/yyyy";
                 dgvDocGia.Columns[7].DefaultCellStyle.Format = "dd/MM/yyyy";
                 dgvDocGia.Columns[8].DefaultCellStyle.Format = "dd/MM/yyyy";
             }

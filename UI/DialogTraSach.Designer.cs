@@ -32,7 +32,7 @@
             this.btTraSach = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lbTreHan = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lbHuHong = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // cbTinhTrang
@@ -72,22 +72,22 @@
             this.lbTreHan.TabIndex = 3;
             this.lbTreHan.Text = "Tiền phạt trễ hạn: ";
             // 
-            // label2
+            // lbHuHong
             // 
-            this.label2.AutoSize = true;
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label2.Location = new System.Drawing.Point(12, 85);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(135, 22);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Tiền phạt hư hỏng:";
+            this.lbHuHong.AutoSize = true;
+            this.lbHuHong.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lbHuHong.Location = new System.Drawing.Point(12, 85);
+            this.lbHuHong.Name = "lbHuHong";
+            this.lbHuHong.Size = new System.Drawing.Size(135, 22);
+            this.lbHuHong.TabIndex = 4;
+            this.lbHuHong.Text = "Tiền phạt hư hỏng:";
             // 
             // DialogTraSach
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(479, 138);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lbHuHong);
             this.Controls.Add(this.lbTreHan);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btTraSach);
@@ -106,6 +106,6 @@
         private Button btTraSach;
         private Label label1;
         private Label lbTreHan;
-        private Label label2;
+        private Label lbHuHong;
     }
 }

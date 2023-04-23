@@ -13,9 +13,6 @@ namespace LibraryManagement
 {
     public partial class DialogThemSach : Form
     {
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterNhaXuatBan = null;
         SqlDataAdapter? dataAdapterChuyenNganh = null;
         SqlDataAdapter? dataAdapterTacGia = null;
@@ -36,25 +33,24 @@ namespace LibraryManagement
 
         private void LoadData()
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            dataAdapterNhaXuatBan = new SqlDataAdapter("SELECT * FROM NHA_XUAT_BAN", connection);
+            dataAdapterNhaXuatBan = new SqlDataAdapter("SELECT * FROM NHA_XUAT_BAN", conn);
             dataTableNhaXuatBan = new DataTable();
             dataAdapterNhaXuatBan.Fill(dataTableNhaXuatBan);
             cbNhaXuatBan.DataSource = dataTableNhaXuatBan;
             cbNhaXuatBan.DisplayMember = "TenNhaXuatBan";
             cbNhaXuatBan.ValueMember= "MaNhaXuatBan";
 
-            dataAdapterChuyenNganh = new SqlDataAdapter("SELECT * FROM CHUYEN_NGANH", connection);
+            dataAdapterChuyenNganh = new SqlDataAdapter("SELECT * FROM CHUYEN_NGANH", conn);
             dataTableChuyenNganh = new DataTable();
             dataAdapterChuyenNganh.Fill(dataTableChuyenNganh);
             cbChuyenNganh.DataSource = dataTableChuyenNganh;
             cbChuyenNganh.DisplayMember = "TenChuyenNganh";
             cbChuyenNganh.ValueMember = "MaChuyenNganh";
 
-            dataAdapterTacGia = new SqlDataAdapter("SELECT * FROM TAC_GIA", connection);
+            dataAdapterTacGia = new SqlDataAdapter("SELECT * FROM TAC_GIA", conn);
 
             dataTableTacGia1 = new DataTable();
             dataAdapterTacGia.Fill(dataTableTacGia1);
@@ -86,13 +82,12 @@ namespace LibraryManagement
 
         private void btThem_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("THEM_SACH", connection);
+            SqlCommand cmd = new SqlCommand("THEM_SACH", conn);
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Add("@TenSach",SqlDbType.VarChar).Value = tbTenSach.Text.ToString();
+            cmd.Parameters.Add("@TenSach",SqlDbType.NVarChar).Value = tbTenSach.Text.ToString();
             if (rbGiaoTrinh.Checked)
                 cmd.Parameters.Add("@LoaiSach",SqlDbType.Bit).Value = 0;
             else
@@ -113,7 +108,8 @@ namespace LibraryManagement
             cmd.ExecuteNonQuery();
             MessageBox.Show("Đã thêm thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            LoadData();
+            conn.Close();
             this.Close();
         }
     }

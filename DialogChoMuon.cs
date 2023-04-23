@@ -13,9 +13,6 @@ namespace LibraryManagement
 {
     public partial class DialogChoMuon : Form
     {
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterSach = null;
         DataTable? dataTableSach = null;
 
@@ -31,12 +28,10 @@ namespace LibraryManagement
 
         private void LoadData()
         {
-            label12.Text = Authentication.LoginId;
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            dataAdapterSach = new SqlDataAdapter("SELECT MaSach AS [Mã sách], TenSach AS [Tên sách] FROM SACH", connection);
+            dataAdapterSach = new SqlDataAdapter("SELECT MaSach AS [Mã sách], TenSach AS [Tên sách] FROM SACH", conn);
             dataTableSach = new DataTable();
             dataAdapterSach.Fill(dataTableSach);
             dgvSach.DataSource = dataTableSach;
@@ -45,14 +40,6 @@ namespace LibraryManagement
             foreach (var label in labels)
             {
                 label.ResetText();
-            }
-
-            var dtpickers = new List<DateTimePicker>() { dt1, dt2, dt3, dt4, dt5, dt6, dt7, dt8, dt9, dt10 };
-            {
-                foreach (var dtpicker in dtpickers)
-                {
-                    dtpicker.Visible = false;
-                }
             }
         }
 
@@ -78,18 +65,6 @@ namespace LibraryManagement
                     break;
                 }
             }
-
-            var dtpickers = new List<DateTimePicker>() { dt1, dt2, dt3, dt4, dt5, dt6, dt7, dt8, dt9, dt10 };
-            {
-                foreach(var dtpicker in dtpickers)
-                {
-                    if (dtpicker.Visible == false)
-                    {
-                        dtpicker.Visible = true;
-                        break;
-                    }
-                }    
-            }
         }
         private void dgvSach_CellClick(object? sender, DataGridViewCellEventArgs? e)
         {
@@ -99,20 +74,19 @@ namespace LibraryManagement
 
         private void btChoMuon_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("Auto_MaPhieuMuon", connection);
+            SqlCommand cmd = new SqlCommand("Auto_MaPhieuMuon", conn);
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = "SELECT [dbo].[Auto_MaPhieuMuon]()";
             var result = cmd.ExecuteScalar();
             String maPhieuMuon = (String)result;
 
-            SqlCommand cmd1 = new SqlCommand("THEM_PHIEU_MUON", connection);
+            SqlCommand cmd1 = new SqlCommand("THEM_PHIEU_MUON", conn);
             cmd1.CommandType = CommandType.StoredProcedure;
             cmd1.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text;
-            cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = Authentication.LoginId;
+            cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = DbHelper.StaffId;
             cmd1.ExecuteNonQuery();
 
 
@@ -121,17 +95,18 @@ namespace LibraryManagement
             {
                 if (label.Text != "")
                 {
-                    SqlCommand cmd2 = new SqlCommand("THEM_SACH_MUON", connection);
+                    SqlCommand cmd2 = new SqlCommand("THEM_SACH_MUON", conn);
                     cmd2.CommandType = CommandType.StoredProcedure;
                     cmd2.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = maPhieuMuon;
                     cmd2.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = label.Text;
                     cmd2.ExecuteNonQuery();
                 }
                 else break;
-            }    
+            }
+            LoadData();
             MessageBox.Show("Đã mượn thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
             this.Close();
         }
     }

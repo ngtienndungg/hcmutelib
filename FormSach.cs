@@ -15,10 +15,6 @@ namespace LibraryManagement
 {
     public partial class FormSach : Form
     {
-
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterSach = null;
         DataTable? dataTableSach = null;
         SqlDataAdapter? dataAdapterNhaXuatBan = null;
@@ -43,30 +39,30 @@ namespace LibraryManagement
         {
             try
             {
-                connection = new SqlConnection(connectionString);
-                if (connection.State == ConnectionState.Open) connection.Close();
-                connection.Open();
-                dataAdapterSach = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_SACH", connection);
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
+
+                dataAdapterSach = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_SACH", conn);
                 dataTableSach = new DataTable();
                 dataTableSach.Clear();
                 dataAdapterSach.Fill(dataTableSach);
                 dgvSach.DataSource = dataTableSach;
 
-                dataAdapterNhaXuatBan = new SqlDataAdapter("SELECT * FROM NHA_XUAT_BAN", connection);
+                dataAdapterNhaXuatBan = new SqlDataAdapter("SELECT * FROM NHA_XUAT_BAN", conn);
                 dataTableNhaXuatBan = new DataTable();
                 dataAdapterNhaXuatBan.Fill(dataTableNhaXuatBan);
                 cbNhaXuatBan.DataSource = dataTableNhaXuatBan;
                 cbNhaXuatBan.DisplayMember = "TenNhaXuatBan";
                 cbNhaXuatBan.ValueMember = "MaNhaXuatBan";
 
-                dataAdapterChuyenNganh = new SqlDataAdapter("SELECT * FROM CHUYEN_NGANH", connection);
+                dataAdapterChuyenNganh = new SqlDataAdapter("SELECT * FROM CHUYEN_NGANH", conn);
                 dataTableChuyenNganh = new DataTable();
                 dataAdapterChuyenNganh.Fill(dataTableChuyenNganh);
                 cbChuyenNganh.DataSource = dataTableChuyenNganh;
                 cbChuyenNganh.DisplayMember = "TenChuyenNganh";
                 cbChuyenNganh.ValueMember = "MaChuyenNganh";
 
-                dataAdapterTacGia = new SqlDataAdapter("SELECT * FROM TAC_GIA", connection);
+                dataAdapterTacGia = new SqlDataAdapter("SELECT * FROM TAC_GIA", conn);
 
                 dataTableTacGia1 = new DataTable();
                 dataAdapterTacGia.Fill(dataTableTacGia1);
@@ -124,6 +120,7 @@ namespace LibraryManagement
         {
             DialogThemSach themSachForm = new DialogThemSach();
             themSachForm.ShowDialog();
+            LoadData();
         }
 
         private void btTaiLai_Click(object sender, EventArgs e)
@@ -196,28 +193,28 @@ namespace LibraryManagement
 
         private void btXoa_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
+            if (conn.State == ConnectionState.Open) conn.Close();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("XOA_SACH", connection);
+            SqlCommand cmd = new SqlCommand("XOA_SACH", conn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text.ToString();
             cmd.ExecuteNonQuery();
             MessageBox.Show("Xoá thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
 
             LoadData();
         }
 
         private void btCapNhat_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SUA_SACH", connection);
+            SqlCommand cmd = new SqlCommand("SUA_SACH", conn);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text.ToString();
@@ -250,8 +247,8 @@ namespace LibraryManagement
             cmd.ExecuteNonQuery();
             MessageBox.Show("Thay đổi thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
-
+            conn.Close();
+                
             LoadData();
         }
 
@@ -261,11 +258,10 @@ namespace LibraryManagement
                 LoadData();
             else
             {
-                connection = new SqlConnection(connectionString);
-                if (connection.State == ConnectionState.Open) connection.Close();
-                connection.Open();
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-                SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH", connection);
+                SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH] (@TenSach)";
                 cmd.Parameters.AddWithValue("@TenSach", tbTimKiemTenSach.Text);

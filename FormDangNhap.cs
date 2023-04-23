@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace LibraryManagement
 {
@@ -14,33 +15,28 @@ namespace LibraryManagement
         {
             String username = tbTenDangNhap.Text.ToString();
             String password = tbMatKhau.Text.ToString();
-            string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
             try
             {
-                SqlConnection connection = new SqlConnection(connectionString);
-                connection.Open();
+                String connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
+                                        User ID = " + username + "; Password = " + password;
+                SqlConnection conn = new SqlConnection(connectionString);
 
-                SqlCommand cmd = new SqlCommand("KIEM_TRA_DANG_NHAP", connection);
+                SqlCommand cmd = new SqlCommand("LAY_MA_NHAN_VIEN", conn);
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT * FROM [dbo].[KIEM_TRA_DANG_NHAP] (@TenDangNhap, @MatKhau)";
-                cmd.Parameters.AddWithValue("@TenDangNhap", tbTenDangNhap.Text);
-                cmd.Parameters.AddWithValue("@MatKhau", tbMatKhau.Text);
+                cmd.CommandText = "SELECT [dbo].[LAY_MA_NHAN_VIEN] (@Username)";
+                cmd.Parameters.AddWithValue("@Username", username);
 
-                var result = cmd.ExecuteScalar();
+                object staffId = cmd.ExecuteScalar();
+                DbHelper.StaffId = staffId.ToString();
+                DbHelper.Username = username;
+                DbHelper.Password = password;
 
-                bool valueExists = result != null && result != DBNull.Value;
+                FormTrangChu formTrangChu = new FormTrangChu(); 
+                this.Hide();
+                formTrangChu.ShowDialog();
+                this.Close();
 
-                if (valueExists)
-                {
-                    FormTrangChu formTrangChu = new FormTrangChu();
-                    Authentication.LoginId = result.ToString();
-                    this.Hide();
-                    formTrangChu.ShowDialog();
-                    this.Close();
-                }
-                else
-                    MessageBox.Show("Tài khoản hoặc mật khẩu không hợp lệ", "Thông báo");
+
             }
             catch(SqlException) 
             {

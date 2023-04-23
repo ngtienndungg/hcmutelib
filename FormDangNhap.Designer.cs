@@ -49,6 +49,7 @@
             this.tbMatKhau.Name = "tbMatKhau";
             this.tbMatKhau.Size = new System.Drawing.Size(234, 27);
             this.tbMatKhau.TabIndex = 1;
+            this.tbMatKhau.UseSystemPasswordChar = true;
             // 
             // btDangNhap
             // 
@@ -90,6 +91,7 @@
             // 
             // FormDangNhap
             // 
+            this.AcceptButton = this.btDangNhap;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(380, 188);

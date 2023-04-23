@@ -8,14 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace LibraryManagement
 {
     public partial class DialogThemDocGia : Form
     {
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterDoiTuong = null;
         DataTable? dataTableDoiTuong = null;
         public DialogThemDocGia()
@@ -30,11 +28,10 @@ namespace LibraryManagement
 
         private void LoadData()
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            dataAdapterDoiTuong = new SqlDataAdapter("SELECT * FROM DOI_TUONG_DOC_GIA", connection);
+            dataAdapterDoiTuong = new SqlDataAdapter("SELECT * FROM DOI_TUONG_DOC_GIA", conn);
             dataTableDoiTuong = new DataTable();
             dataAdapterDoiTuong.Fill(dataTableDoiTuong);
             cbDoiTuong.DataSource = dataTableDoiTuong;
@@ -49,11 +46,10 @@ namespace LibraryManagement
 
         private void btThem_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("THEM_DOC_GIA", connection);
+            SqlCommand cmd = new SqlCommand("THEM_DOC_GIA", conn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
             if (rbNam.Checked)
@@ -68,7 +64,7 @@ namespace LibraryManagement
             cmd.ExecuteNonQuery();
             MessageBox.Show("Đã thêm thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
             this.Close();
         }
     }

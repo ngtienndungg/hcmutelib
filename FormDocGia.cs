@@ -14,9 +14,6 @@ namespace LibraryManagement
 {
     public partial class FormDocGia : Form
     {
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterDocGia = null;
         SqlDataAdapter? dataAdapterDoiTuong = null;
         DataTable? dataTableDocGia = null;
@@ -35,20 +32,19 @@ namespace LibraryManagement
         {
             try
             {
-                connection = new SqlConnection(connectionString);
-                if (connection.State == ConnectionState.Open) connection.Close();
-                connection.Open();
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
                 if (checkBoxConHan.Checked == false)
-                    dataAdapterDocGia = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_THE_DOC_GIA", connection);
+                    dataAdapterDocGia = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_THE_DOC_GIA", conn);
                 else
-                    dataAdapterDocGia = new SqlDataAdapter("SELECT * FROM VIEW_DOC_GIA_CON_HAN", connection);
+                    dataAdapterDocGia = new SqlDataAdapter("SELECT * FROM VIEW_DOC_GIA_CON_HAN", conn);
                 dataTableDocGia = new DataTable();
                 dataTableDocGia.Clear();
                 dataAdapterDocGia.Fill(dataTableDocGia);
                 dgvDocGia.DataSource = dataTableDocGia;
 
-                dataAdapterDoiTuong = new SqlDataAdapter("SELECT * FROM DOI_TUONG_DOC_GIA", connection);
+                dataAdapterDoiTuong = new SqlDataAdapter("SELECT * FROM DOI_TUONG_DOC_GIA", conn);
                 dataTableDoiTuong = new DataTable();
                 dataTableDoiTuong.Clear();
                 dataAdapterDoiTuong.Fill(dataTableDoiTuong);
@@ -145,28 +141,26 @@ namespace LibraryManagement
 
         private void btGiaHan_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("GIA_HAN", connection);
+            SqlCommand cmd = new SqlCommand("GIA_HAN", conn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
             cmd.ExecuteNonQuery();
             MessageBox.Show("Gia hạn thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
 
             LoadData();
         }
 
         private void btCapNhat_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SUA_DOC_GIA", connection);
+            SqlCommand cmd = new SqlCommand("SUA_DOC_GIA", conn);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
@@ -185,7 +179,7 @@ namespace LibraryManagement
             cmd.ExecuteNonQuery();
             MessageBox.Show("Thay đổi thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
 
             LoadData();
         }
@@ -201,11 +195,10 @@ namespace LibraryManagement
                 LoadData();
             else
             {
-                connection = new SqlConnection(connectionString);
-                if (connection.State == ConnectionState.Open) connection.Close();
-                connection.Open();
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-                SqlCommand cmd = new SqlCommand("TIM_KIEM_MA_DOC_GIA", connection);
+                SqlCommand cmd = new SqlCommand("TIM_KIEM_MA_DOC_GIA", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MA_DOC_GIA] (@MaDocGia)";
                 cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
@@ -233,17 +226,16 @@ namespace LibraryManagement
 
         private void btXoa_Click(object sender, EventArgs e)
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
-            SqlCommand cmd = new SqlCommand("XOA_DOC_GIA", connection);
+            SqlCommand cmd = new SqlCommand("XOA_DOC_GIA", conn);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
             cmd.ExecuteNonQuery();
             MessageBox.Show("Xoá thành công"
                      , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            connection.Close();
+            conn.Close();
 
             LoadData();
 

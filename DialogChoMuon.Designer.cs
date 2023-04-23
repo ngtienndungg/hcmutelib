@@ -30,7 +30,6 @@
         {
             this.dgvSach = new System.Windows.Forms.DataGridView();
             this.btThem = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -45,19 +44,8 @@
             this.btChoMuon = new System.Windows.Forms.Button();
             this.btHuyBo = new System.Windows.Forms.Button();
             this.tbMaSach = new System.Windows.Forms.TextBox();
-            this.dt1 = new System.Windows.Forms.DateTimePicker();
-            this.dt2 = new System.Windows.Forms.DateTimePicker();
-            this.dt3 = new System.Windows.Forms.DateTimePicker();
-            this.dt4 = new System.Windows.Forms.DateTimePicker();
-            this.dt5 = new System.Windows.Forms.DateTimePicker();
-            this.dt6 = new System.Windows.Forms.DateTimePicker();
-            this.dt7 = new System.Windows.Forms.DateTimePicker();
-            this.dt8 = new System.Windows.Forms.DateTimePicker();
-            this.dt9 = new System.Windows.Forms.DateTimePicker();
-            this.dt10 = new System.Windows.Forms.DateTimePicker();
             this.label11 = new System.Windows.Forms.Label();
             this.tbMaDocGia = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSach)).BeginInit();
             this.SuspendLayout();
             // 
@@ -81,15 +69,6 @@
             this.btThem.Text = "Thêm";
             this.btThem.UseVisualStyleBackColor = true;
             this.btThem.Click += new System.EventHandler(this.btThem_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(501, 210);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(8, 8);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -219,76 +198,6 @@
             this.tbMaSach.TabIndex = 27;
             this.tbMaSach.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // dt1
-            // 
-            this.dt1.Location = new System.Drawing.Point(600, 10);
-            this.dt1.Name = "dt1";
-            this.dt1.Size = new System.Drawing.Size(250, 27);
-            this.dt1.TabIndex = 28;
-            // 
-            // dt2
-            // 
-            this.dt2.Location = new System.Drawing.Point(600, 55);
-            this.dt2.Name = "dt2";
-            this.dt2.Size = new System.Drawing.Size(250, 27);
-            this.dt2.TabIndex = 29;
-            // 
-            // dt3
-            // 
-            this.dt3.Location = new System.Drawing.Point(600, 105);
-            this.dt3.Name = "dt3";
-            this.dt3.Size = new System.Drawing.Size(250, 27);
-            this.dt3.TabIndex = 30;
-            // 
-            // dt4
-            // 
-            this.dt4.Location = new System.Drawing.Point(600, 155);
-            this.dt4.Name = "dt4";
-            this.dt4.Size = new System.Drawing.Size(250, 27);
-            this.dt4.TabIndex = 31;
-            // 
-            // dt5
-            // 
-            this.dt5.Location = new System.Drawing.Point(600, 205);
-            this.dt5.Name = "dt5";
-            this.dt5.Size = new System.Drawing.Size(250, 27);
-            this.dt5.TabIndex = 32;
-            // 
-            // dt6
-            // 
-            this.dt6.Location = new System.Drawing.Point(600, 255);
-            this.dt6.Name = "dt6";
-            this.dt6.Size = new System.Drawing.Size(250, 27);
-            this.dt6.TabIndex = 33;
-            // 
-            // dt7
-            // 
-            this.dt7.Location = new System.Drawing.Point(600, 305);
-            this.dt7.Name = "dt7";
-            this.dt7.Size = new System.Drawing.Size(250, 27);
-            this.dt7.TabIndex = 34;
-            // 
-            // dt8
-            // 
-            this.dt8.Location = new System.Drawing.Point(600, 355);
-            this.dt8.Name = "dt8";
-            this.dt8.Size = new System.Drawing.Size(250, 27);
-            this.dt8.TabIndex = 35;
-            // 
-            // dt9
-            // 
-            this.dt9.Location = new System.Drawing.Point(600, 405);
-            this.dt9.Name = "dt9";
-            this.dt9.Size = new System.Drawing.Size(250, 27);
-            this.dt9.TabIndex = 36;
-            // 
-            // dt10
-            // 
-            this.dt10.Location = new System.Drawing.Point(600, 461);
-            this.dt10.Name = "dt10";
-            this.dt10.Size = new System.Drawing.Size(250, 27);
-            this.dt10.TabIndex = 37;
-            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -306,33 +215,13 @@
             this.tbMaDocGia.TabIndex = 40;
             this.tbMaDocGia.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(394, 272);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(58, 20);
-            this.label12.TabIndex = 41;
-            this.label12.Text = "label12";
-            // 
             // DialogChoMuon
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(874, 495);
-            this.Controls.Add(this.label12);
+            this.ClientSize = new System.Drawing.Size(681, 495);
             this.Controls.Add(this.tbMaDocGia);
             this.Controls.Add(this.label11);
-            this.Controls.Add(this.dt10);
-            this.Controls.Add(this.dt9);
-            this.Controls.Add(this.dt8);
-            this.Controls.Add(this.dt7);
-            this.Controls.Add(this.dt6);
-            this.Controls.Add(this.dt5);
-            this.Controls.Add(this.dt4);
-            this.Controls.Add(this.dt3);
-            this.Controls.Add(this.dt2);
-            this.Controls.Add(this.dt1);
             this.Controls.Add(this.tbMaSach);
             this.Controls.Add(this.btHuyBo);
             this.Controls.Add(this.btChoMuon);
@@ -347,7 +236,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.btThem);
             this.Controls.Add(this.dgvSach);
             this.Name = "DialogChoMuon";
@@ -362,7 +250,6 @@
         #endregion
         private DataGridView dgvSach;
         private Button btThem;
-        private Button button1;
         private Label label1;
         private Label label2;
         private Label label3;
@@ -377,18 +264,7 @@
         private Button btChoMuon;
         private Button btHuyBo;
         private TextBox tbMaSach;
-        private DateTimePicker dt1;
-        private DateTimePicker dt2;
-        private DateTimePicker dt3;
-        private DateTimePicker dt4;
-        private DateTimePicker dt5;
-        private DateTimePicker dt6;
-        private DateTimePicker dt7;
-        private DateTimePicker dt8;
-        private DateTimePicker dt9;
-        private DateTimePicker dt10;
         private Label label11;
         private TextBox tbMaDocGia;
-        private Label label12;
     }
 }

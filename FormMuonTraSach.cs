@@ -13,11 +13,13 @@ namespace LibraryManagement
 {
     public partial class FormMuonTraSach : Form
     {
-        string connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = sa; Password = tiendung123";
-        SqlConnection? connection = null;
         SqlDataAdapter? dataAdapterMuonTra = null;
         DataTable? dataTableMuonTra = null;
+
+        public static string maPhieuMuon;
+        public static string maSach;
+        public static DateTime ngayHetHan;
+
         public FormMuonTraSach()
         {
             InitializeComponent();
@@ -30,13 +32,12 @@ namespace LibraryManagement
 
         private void LoadData()
         {
-            connection = new SqlConnection(connectionString);
-            if (connection.State == ConnectionState.Open) connection.Close();
-            connection.Open();
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
             if (rbToanBo.Checked)
             {
-                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_MUON_TRA", connection);
+                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_CHI_TIET_MUON_TRA", conn);
                 dataTableMuonTra = new DataTable();
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
@@ -44,7 +45,7 @@ namespace LibraryManagement
             }
             else if (rbDangMuon.Checked)
             {
-                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_SACH_DANG_MUON", connection);
+                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_SACH_DANG_MUON", conn);
                 dataTableMuonTra = new DataTable();
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
@@ -52,7 +53,7 @@ namespace LibraryManagement
             }
             else if (rbDaTra.Checked)
             {
-                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_SACH_DA_TRA", connection);
+                dataAdapterMuonTra = new SqlDataAdapter("SELECT * FROM VIEW_SACH_DA_TRA", conn);
                 dataTableMuonTra = new DataTable();
                 dataTableMuonTra.Clear();
                 dataAdapterMuonTra.Fill(dataTableMuonTra);
@@ -80,6 +81,165 @@ namespace LibraryManagement
         private void rbDaTra_CheckedChanged(object sender, EventArgs e)
         {
             LoadData();
+        }
+
+        private void btTimKiem1_Click(object sender, EventArgs e)
+        {
+            if (rbToanBo.Checked)
+            {
+                if (tbTimKiemMaPhieuMuon.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_MUON_TRA_PHIEU_MUON", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_PHIEU_MUON] (@MaPhieuMuon)";
+                    cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+            else if (rbDangMuon.Checked)
+            {
+                if (tbTimKiemMaPhieuMuon.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON] (@MaPhieuMuon)";
+                    cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+            else
+            {
+                if (tbTimKiemMaPhieuMuon.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DA_TRA_PHIEU_MUON", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_PHIEU_MUON] (@MaPhieuMuon)";
+                    cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+        }
+
+        private void btTimKiem2_Click(object sender, EventArgs e)
+        {
+            if (rbToanBo.Checked)
+            {
+                if (tbTimKiemMaDocGia.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_MUON_TRA_MA_DOC_GIA", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_MA_DOC_GIA] (@MaDocGia)";
+                    cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+            else if (rbDangMuon.Checked)
+            {
+                if (tbTimKiemMaDocGia.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA] (@MaDocGia)";
+                    cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+            else
+            {
+                if(tbTimKiemMaDocGia.Text.Length == 0)
+                    LoadData();
+                else
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA", conn);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA] (@MaDocGia)";
+                    cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
+
+
+                    dataAdapterMuonTra = new SqlDataAdapter(cmd);
+                    dataTableMuonTra = new DataTable();
+                    dataTableMuonTra.Clear();
+                    dataAdapterMuonTra.Fill(dataTableMuonTra);
+                    dgvMuonTra.DataSource = dataTableMuonTra;
+                }
+            }
+        }
+
+        private void btTraSach_Click(object sender, EventArgs e)
+        {
+            DialogTraSach traSach = new DialogTraSach();
+            traSach.ShowDialog();
+            maPhieuMuon = tbMaPhieuMuon.Text;
+            maSach = tbMaSach.Text;
+            ngayHetHan = DateTime.Parse(tbNgayHetHan.Text);
+        }
+
+        private void dgvMuonTra_CellClick(object? sender, DataGridViewCellEventArgs? e)
+        {
+
+            int r = dgvMuonTra.CurrentCell.RowIndex;
+            tbMaPhieuMuon.Text = dgvMuonTra.Rows[r].Cells[0].Value.ToString();
+            tbMaNguoiMuon.Text = dgvMuonTra.Rows[r].Cells[1].Value.ToString();
+            tbMaSach.Text = dgvMuonTra.Rows[r].Cells[3].Value.ToString();
+            tbNgayHetHan.Text = dgvMuonTra.Rows[r].Cells[6].Value.ToString();
         }
     }
 }

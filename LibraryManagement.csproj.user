@@ -1,40 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Compile Update="DialogChoMuon.cs">
+    <Compile Update="UI\DialogChoMuon.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="DialogThemDocGia.cs">
+    <Compile Update="UI\DialogThemDocGia.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="DialogTraSach.cs">
+    <Compile Update="UI\DialogTraSach.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormChuyenNganh.cs">
+    <Compile Update="UI\FormChuyenNganh.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormMuonTraSach.cs">
+    <Compile Update="UI\FormMuonTraSach.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormNhaXuatBan.cs">
+    <Compile Update="UI\FormNhaXuatBan.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormDocGia.cs">
+    <Compile Update="UI\FormDocGia.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormSach.cs">
+    <Compile Update="UI\FormSach.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormTacGia.cs">
+    <Compile Update="UI\FormTacGia.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormTrangChu.cs">
+    <Compile Update="UI\FormTrangChu.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormDangNhap.cs">
+    <Compile Update="UI\FormDangNhap.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="DialogThemSach.cs">
+    <Compile Update="UI\DialogThemSach.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

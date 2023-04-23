@@ -198,9 +198,8 @@ namespace LibraryManagement
                 SqlConnection conn = DbHelper.Connect();
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("TIM_KIEM_MA_DOC_GIA", conn);
+                SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_MA_DOC_GIA] (@MaDocGia)", conn);
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MA_DOC_GIA] (@MaDocGia)";
                 cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
 
 

@@ -16,9 +16,10 @@ namespace LibraryManagement
         SqlDataAdapter? dataAdapterMuonTra = null;
         DataTable? dataTableMuonTra = null;
 
-        public static string maPhieuMuon;
-        public static string maSach;
-        public static DateTime ngayHetHan;
+        public static string maPhieuMuon = "";
+        public static string maSach = "";
+        public static decimal phatHuHong;
+        public static decimal phatQuaHan;
 
         public FormMuonTraSach()
         {
@@ -94,9 +95,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_MUON_TRA_PHIEU_MUON", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_PHIEU_MUON] (@MaPhieuMuon)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_PHIEU_MUON] (@MaPhieuMuon)";
                     cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
 
 
@@ -116,9 +116,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON] (@MaPhieuMuon)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON] (@MaPhieuMuon)";
                     cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
 
 
@@ -138,9 +137,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DA_TRA_PHIEU_MUON", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_PHIEU_MUON] (@MaPhieuMuon)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_PHIEU_MUON] (@MaPhieuMuon)";
                     cmd.Parameters.AddWithValue("@MaPhieuMuon", tbTimKiemMaPhieuMuon.Text);
 
 
@@ -164,9 +162,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_MUON_TRA_MA_DOC_GIA", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_MA_DOC_GIA] (@MaDocGia)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_MUON_TRA_MA_DOC_GIA] (@MaDocGia)";
                     cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
 
 
@@ -186,9 +183,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA] (@MaDocGia)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA] (@MaDocGia)";
                     cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
 
 
@@ -208,9 +204,8 @@ namespace LibraryManagement
                     SqlConnection conn = DbHelper.Connect();
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA] (@MaDocGia)", conn);
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA] (@MaDocGia)";
                     cmd.Parameters.AddWithValue("@MaDocGia", tbTimKiemMaDocGia.Text);
 
 
@@ -229,7 +224,17 @@ namespace LibraryManagement
             traSach.ShowDialog();
             maPhieuMuon = tbMaPhieuMuon.Text;
             maSach = tbMaSach.Text;
-            ngayHetHan = DateTime.Parse(tbNgayHetHan.Text);
+            
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT [DBO].[TINH_PHAT_TRE_HAN](@NgayHetHan)", conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.AddWithValue("@NgayHetHan", tbNgayHetHan.Text);
+            SqlDataReader dr = cmd.ExecuteReader();
+            dr.Read();
+            
+            phatQuaHan = dr.GetDecimal(0);
         }
 
         private void dgvMuonTra_CellClick(object? sender, DataGridViewCellEventArgs? e)

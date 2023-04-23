@@ -235,7 +235,7 @@
             this.btHuy.UseVisualStyleBackColor = true;
             this.btHuy.Click += new System.EventHandler(this.btHuy_Click);
             // 
-            // ThemSachForm
+            // DialogThemSach
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -261,7 +261,7 @@
             this.Controls.Add(this.tbSoLuong);
             this.Controls.Add(this.tbGiaBia);
             this.Controls.Add(this.tbTenSach);
-            this.Name = "ThemSachForm";
+            this.Name = "DialogThemSach";
             this.Text = "Thêm sách";
             this.Load += new System.EventHandler(this.ThemSachForm_Load);
             this.ResumeLayout(false);

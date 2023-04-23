@@ -57,6 +57,8 @@ namespace LibraryManagement
             cbTacGia1.DataSource = dataTableTacGia1;
             cbTacGia1.DisplayMember = "TenTacGia";
             cbTacGia1.ValueMember = "MaTacGia";
+            cbTacGia1.SelectedIndex = -1;
+            cbTacGia1.Text = "Chọn tên tác giả";
 
             dataTableTacGia2 = new DataTable();
             dataAdapterTacGia.Fill(dataTableTacGia2);
@@ -64,7 +66,7 @@ namespace LibraryManagement
             cbTacGia2.DisplayMember = "TenTacGia";
             cbTacGia2.ValueMember = "MaTacGia";
             cbTacGia2.SelectedIndex = -1;
-            cbTacGia2.Text = "(Tuỳ chọn)";
+            cbTacGia2.Text = "Chọn tên tác giả";
 
             dataTableTacGia3 = new DataTable();
             dataAdapterTacGia.Fill(dataTableTacGia3);
@@ -72,7 +74,7 @@ namespace LibraryManagement
             cbTacGia3.DisplayMember = "TenTacGia";
             cbTacGia3.ValueMember = "MaTacGia";
             cbTacGia3.SelectedIndex = -1;
-            cbTacGia3.Text = "(Tuỳ chọn)";
+            cbTacGia3.Text = "Chọn tên tác giả";
         }
 
         private void btHuy_Click(object sender, EventArgs e)
@@ -82,35 +84,52 @@ namespace LibraryManagement
 
         private void btThem_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("THEM_SACH", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Add("@TenSach",SqlDbType.NVarChar).Value = tbTenSach.Text.ToString();
-            if (rbGiaoTrinh.Checked)
-                cmd.Parameters.Add("@LoaiSach",SqlDbType.Bit).Value = 0;
-            else
-                cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 1;
-            cmd.Parameters.Add("@MaNhaXuatBan", SqlDbType.VarChar).Value = cbNhaXuatBan.SelectedValue;
-            cmd.Parameters.Add("@MaChuyenNganh", SqlDbType.VarChar).Value = cbChuyenNganh.SelectedValue;
-            cmd.Parameters.Add("@GiaBia", SqlDbType.Decimal).Value = tbGiaBia.Text.ToString();
-            cmd.Parameters.Add("@SoLuong", SqlDbType.Int).Value = tbSoLuong.Text.ToString();
-            cmd.Parameters.Add("@MaTacGia1", SqlDbType.VarChar).Value = cbTacGia1.SelectedValue;
-            if (cbTacGia2.SelectedIndex == -1)
-                cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = DBNull.Value;
-            else
-                cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = cbTacGia2.SelectedValue;
-            if (cbTacGia3.SelectedIndex == -1)
-                cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = DBNull.Value;
-            else
-            cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = cbTacGia3.SelectedValue;
-            cmd.ExecuteNonQuery();
-            MessageBox.Show("Đã thêm thành công"
-                     , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            LoadData();
-            conn.Close();
-            this.Close();
+                SqlCommand cmd = new SqlCommand("THEM_SACH", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@TenSach", SqlDbType.NVarChar).Value = tbTenSach.Text.ToString();
+                if (rbGiaoTrinh.Checked)
+                    cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 0;
+                else
+                    cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 1;
+                cmd.Parameters.Add("@MaNhaXuatBan", SqlDbType.VarChar).Value = cbNhaXuatBan.SelectedValue;
+                cmd.Parameters.Add("@MaChuyenNganh", SqlDbType.VarChar).Value = cbChuyenNganh.SelectedValue;
+                cmd.Parameters.Add("@GiaBia", SqlDbType.Decimal).Value = tbGiaBia.Text.ToString();
+                cmd.Parameters.Add("@SoLuong", SqlDbType.Int).Value = tbSoLuong.Text.ToString();
+
+                if (cbTacGia1.SelectedIndex == -1 && cbTacGia2.SelectedIndex == -1 && cbTacGia3.SelectedIndex == -1)
+                {
+               
+                }
+                if (cbTacGia1.SelectedIndex == -1)
+                    cmd.Parameters.Add("@MaTacGia1", SqlDbType.VarChar).Value = DBNull.Value;
+                else
+                    cmd.Parameters.Add("@MaTacGia1", SqlDbType.VarChar).Value = cbTacGia1.SelectedValue;
+
+                if (cbTacGia2.SelectedIndex == -1)
+                    cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = DBNull.Value;
+                else
+                    cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = cbTacGia2.SelectedValue;
+
+                if (cbTacGia3.SelectedIndex == -1)
+                    cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = DBNull.Value;
+                else
+                    cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = cbTacGia3.SelectedValue;
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Đã thêm thành công"
+                         , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadData();
+                conn.Close();
+                this.Close();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

@@ -19,7 +19,6 @@ namespace LibraryManagement
 
         public static string maPhieuMuon = "";
         public static string maSach = "";
-        public static decimal phatHuHong;
         public static decimal phatQuaHan;
 
         public FormMuonTraSach()

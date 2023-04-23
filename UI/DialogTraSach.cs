@@ -33,16 +33,37 @@ namespace LibraryManagement
             dataAdapter = new SqlDataAdapter("SELECT * FROM TINH_TRANG_SACH", conn);
             dataTable = new DataTable();
             dataAdapter.Fill(dataTable);
-            cbTinhTrang.DataSource = dataTable;
             cbTinhTrang.DisplayMember = "TinhTrangSach";
             cbTinhTrang.ValueMember = "MaTinhTrangSach";
+            cbTinhTrang.DataSource = dataTable;
 
-            lbTreHan.Text = lbTreHan.Text + FormMuonTraSach.phatQuaHan.ToString();
+            lbTreHan.Text = "Tiền phạt trễ hạn: " + FormMuonTraSach.phatQuaHan.ToString() + " VND";
         }
 
         private void btTraSach_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void cbTinhTrang_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbTinhTrang.SelectedValue != null) 
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT [DBO].[TINH_PHAT_HU_HONG](@MaSach, @TinhTrang)", conn);
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = FormMuonTraSach.maSach;
+                cmd.Parameters.Add("@TinhTrang", SqlDbType.Int).Value = cbTinhTrang.SelectedValue;
+
+                SqlDataReader dr = cmd.ExecuteReader();
+                dr.Read();
+
+                decimal phatHuHong = dr.GetDecimal(0);
+                lbHuHong.Text = "Tiền phạt hư hỏng: " + phatHuHong.ToString() + " VND";
+            }
         }
     }
 }

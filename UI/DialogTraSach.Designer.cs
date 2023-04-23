@@ -42,6 +42,7 @@
             this.cbTinhTrang.Name = "cbTinhTrang";
             this.cbTinhTrang.Size = new System.Drawing.Size(218, 28);
             this.cbTinhTrang.TabIndex = 0;
+            this.cbTinhTrang.SelectedIndexChanged += new System.EventHandler(this.cbTinhTrang_SelectedIndexChanged);
             // 
             // btTraSach
             // 
@@ -68,9 +69,8 @@
             this.lbTreHan.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lbTreHan.Location = new System.Drawing.Point(12, 32);
             this.lbTreHan.Name = "lbTreHan";
-            this.lbTreHan.Size = new System.Drawing.Size(130, 22);
+            this.lbTreHan.Size = new System.Drawing.Size(2, 22);
             this.lbTreHan.TabIndex = 3;
-            this.lbTreHan.Text = "Tiền phạt trễ hạn: ";
             // 
             // lbHuHong
             // 
@@ -78,9 +78,8 @@
             this.lbHuHong.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lbHuHong.Location = new System.Drawing.Point(12, 85);
             this.lbHuHong.Name = "lbHuHong";
-            this.lbHuHong.Size = new System.Drawing.Size(135, 22);
+            this.lbHuHong.Size = new System.Drawing.Size(2, 22);
             this.lbHuHong.TabIndex = 4;
-            this.lbHuHong.Text = "Tiền phạt hư hỏng:";
             // 
             // DialogTraSach
             // 

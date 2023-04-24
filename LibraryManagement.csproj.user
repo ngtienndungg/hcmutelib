@@ -7,6 +7,9 @@
     <Compile Update="UI\DialogThemDocGia.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="UI\DialogThemNhanVien.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="UI\DialogTraSach.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -14,6 +17,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UI\FormMuonTraSach.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\FormNhanVien.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UI\FormNhaXuatBan.cs">

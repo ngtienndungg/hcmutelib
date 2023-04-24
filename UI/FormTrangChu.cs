@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibraryManagement.UI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -154,5 +155,26 @@ namespace LibraryManagement
             formMuonTraSach.Location = new Point(0, 0);
         }
 
+        private void NhanVien_Click(object sender, EventArgs e)
+        {
+            foreach (Form form in this.MdiChildren)
+            {
+                if (form.GetType() == typeof(FormNhanVien))
+                {
+                    if (form.WindowState == FormWindowState.Minimized)
+                    {
+                        form.WindowState = FormWindowState.Normal;
+                    }
+                    form.Activate();
+                    return;
+                }
+            }
+            if (ActiveMdiChild != null) ActiveMdiChild.Close();
+            FormNhanVien formNhanVien = new FormNhanVien();
+            formNhanVien.MdiParent = this;
+            formNhanVien.Show();
+            formNhanVien.StartPosition = FormStartPosition.Manual;
+            formNhanVien.Location = new Point(0, 0);
+        }
     }
 }

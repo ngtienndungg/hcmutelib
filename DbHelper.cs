@@ -9,7 +9,7 @@ namespace LibraryManagement
 {
     class DbHelper
     {
-        public static String StaffId = "";
+        public static String MaNhanVien = "";
         public static String Username = "";
         public static String Password = "";
         

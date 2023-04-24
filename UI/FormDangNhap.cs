@@ -27,7 +27,7 @@ namespace LibraryManagement
                 cmd.Parameters.AddWithValue("@Username", username);
 
                 object staffId = cmd.ExecuteScalar();
-                DbHelper.StaffId = staffId.ToString();
+                DbHelper.MaNhanVien = staffId.ToString();
                 DbHelper.Username = username;
                 DbHelper.Password = password;
 

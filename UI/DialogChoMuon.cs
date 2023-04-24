@@ -86,7 +86,7 @@ namespace LibraryManagement
             SqlCommand cmd1 = new SqlCommand("THEM_PHIEU_MUON", conn);
             cmd1.CommandType = CommandType.StoredProcedure;
             cmd1.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text;
-            cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = DbHelper.StaffId;
+            cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
             cmd1.ExecuteNonQuery();
 
 

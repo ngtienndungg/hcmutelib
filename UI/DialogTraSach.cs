@@ -13,6 +13,7 @@ namespace LibraryManagement
 {
     public partial class DialogTraSach : Form
     {
+        decimal phatHuHong;
         SqlDataAdapter? dataAdapter = null;
         DataTable? dataTable = null;
         public DialogTraSach()
@@ -42,7 +43,24 @@ namespace LibraryManagement
 
         private void btTraSach_Click(object sender, EventArgs e)
         {
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
 
+            SqlCommand cmd = new SqlCommand("TRA_SACH", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = FormMuonTraSach.maPhieuMuon;
+            cmd.Parameters.Add("@MaNhanVienTra", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
+            cmd.Parameters.Add("@TinhTrang", SqlDbType.Int).Value = cbTinhTrang.SelectedValue;
+            cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = FormMuonTraSach.maSach;
+            cmd.Parameters.Add("@PhatHuHong", SqlDbType.Decimal).Value = phatHuHong;
+            cmd.Parameters.Add("@PhatQuaHan", SqlDbType.Decimal).Value = FormMuonTraSach.phatQuaHan;
+            cmd.ExecuteNonQuery();
+
+            MessageBox.Show("Trả thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            conn.Close();
+            this.Close();
         }
 
         private void cbTinhTrang_SelectedIndexChanged(object sender, EventArgs e)
@@ -61,7 +79,7 @@ namespace LibraryManagement
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
 
-                decimal phatHuHong = dr.GetDecimal(0);
+                phatHuHong = dr.GetDecimal(0);
                 lbHuHong.Text = "Tiền phạt hư hỏng: " + phatHuHong.ToString() + " VND";
             }
         }

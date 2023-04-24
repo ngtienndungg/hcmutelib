@@ -53,6 +53,7 @@
             this.tbCu.Name = "tbCu";
             this.tbCu.Size = new System.Drawing.Size(198, 27);
             this.tbCu.TabIndex = 1;
+            this.tbCu.UseSystemPasswordChar = true;
             // 
             // tbMoi
             // 
@@ -60,6 +61,7 @@
             this.tbMoi.Name = "tbMoi";
             this.tbMoi.Size = new System.Drawing.Size(198, 27);
             this.tbMoi.TabIndex = 3;
+            this.tbMoi.UseSystemPasswordChar = true;
             // 
             // label2
             // 
@@ -76,6 +78,7 @@
             this.tbXacNhan.Name = "tbXacNhan";
             this.tbXacNhan.Size = new System.Drawing.Size(198, 27);
             this.tbXacNhan.TabIndex = 5;
+            this.tbXacNhan.UseSystemPasswordChar = true;
             // 
             // label3
             // 

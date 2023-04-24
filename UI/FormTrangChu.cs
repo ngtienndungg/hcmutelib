@@ -182,5 +182,22 @@ namespace LibraryManagement
             DialogDoiMatKhau dialogDoiMatKhau = new DialogDoiMatKhau();
             dialogDoiMatKhau.Show();
         }
+
+        private void DangXuat_Click(object sender, EventArgs e)
+        {
+            DbHelper.MaNhanVien = "";
+            DbHelper.Username = "";
+            DbHelper.Password = "";
+
+            FormDangNhap formDangNhap = new FormDangNhap();
+            this.Hide();
+            formDangNhap.ShowDialog();
+            this.Close();
+        }
+
+        private void Thoat_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -33,6 +33,8 @@ namespace LibraryManagement
 
         private void LoadData()
         {
+            btTraSach.Enabled = false;
+            btGiaHan.Enabled = false;
             SqlConnection conn = DbHelper.Connect();
             conn.Open();
 
@@ -76,6 +78,7 @@ namespace LibraryManagement
         {
             DialogChoMuon choMuon = new DialogChoMuon();
             choMuon.ShowDialog();
+            LoadData();
         }
 
         private void rbToanBo_CheckedChanged(object sender, EventArgs e)
@@ -252,6 +255,8 @@ namespace LibraryManagement
 
         private void dgvMuonTra_CellClick(object? sender, DataGridViewCellEventArgs? e)
         {
+            btTraSach.Enabled = true;
+            btGiaHan.Enabled = true;
 
             int r = dgvMuonTra.CurrentCell.RowIndex;
             tbMaPhieuMuon.Text = dgvMuonTra.Rows[r].Cells[0].Value.ToString();

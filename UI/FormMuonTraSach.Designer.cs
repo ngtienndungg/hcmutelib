@@ -100,9 +100,9 @@
             // 
             // btChoMuon
             // 
-            this.btChoMuon.Location = new System.Drawing.Point(996, 76);
+            this.btChoMuon.Location = new System.Drawing.Point(852, 28);
             this.btChoMuon.Name = "btChoMuon";
-            this.btChoMuon.Size = new System.Drawing.Size(94, 29);
+            this.btChoMuon.Size = new System.Drawing.Size(102, 48);
             this.btChoMuon.TabIndex = 7;
             this.btChoMuon.Text = "Cho mượn";
             this.btChoMuon.UseVisualStyleBackColor = true;

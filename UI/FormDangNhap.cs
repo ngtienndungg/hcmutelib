@@ -35,13 +35,11 @@ namespace LibraryManagement
                 this.Hide();
                 formTrangChu.ShowDialog();
                 this.Close();
-
-
             }
             catch(SqlException) 
             {
                 MessageBox.Show("Tài khoản hoặc mật khẩu không hợp lệ", "Thông báo");
-            }
+            } 
 
         }
 

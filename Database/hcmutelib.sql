@@ -325,13 +325,12 @@ GO
 
 
 -- VIEW CHI TIẾT THÔNG TIN NHÂN VIÊN
-CREATE VIEW [VIEW_CHI_TIET_NHAN_VIEN] AS
+CREATE OR ALTER VIEW [VIEW_CHI_TIET_NHAN_VIEN] AS
 SELECT nv.MaNhanVien [Mã nhân viên], HoTen [Họ tên],
 CASE WHEN GioiTinh = 1 THEN 'Nam' ELSE N'Nữ' END [Giới tính],
 NgaySinh [Ngày sinh], SoDienThoai [SĐT], Email, NgayVaoLam [Ngày vào làm], 
-CASE WHEN TinhTrangLamViec = 1 THEN N'Còn làm việc' ELSE N'Đã nghỉ việc' END [Tình trạng làm việc],
-CASE WHEN dn.LoaiTaiKhoan = 1 THEN N'Thủ thư' ELSE N'Quản trị viên' END [Vai trò hệ thống]
-FROM [NHAN_VIEN] nv JOIN [DANG_NHAP] dn ON nv.MaNhanVien = dn.MaNhanVien
+CASE WHEN TinhTrangLamViec = 1 THEN N'Còn làm việc' ELSE N'Đã nghỉ việc' END [Tình trạng làm việc]
+FROM [NHAN_VIEN] nv
 GO
 
 -- VIEW CHI TIẾT THÔNG TIN ĐỘC GIẢ
@@ -423,12 +422,11 @@ WHERE GETDATE()<NgayHetHan
 GO
 
 -- VIEW NHÂN VIÊN CÒN LÀM VIỆC
-CREATE VIEW [VIEW_NHAN_VIEN_LAM_VIEC] AS
+CREATE OR ALTER VIEW [VIEW_NHAN_VIEN_LAM_VIEC] AS
 SELECT nv.MaNhanVien [Mã nhân viên], HoTen [Họ tên],
 CASE WHEN GioiTinh = 1 THEN 'Nam' ELSE N'Nữ' END [Giới tính],
-NgaySinh [Ngày sinh], SoDienThoai [SĐT], Email, NgayVaoLam [Ngày vào làm], 
-CASE WHEN dn.LoaiTaiKhoan = 1 THEN N'Thủ thư' ELSE N'Quản trị viên' END [Vai trò hệ thống]
-FROM [NHAN_VIEN] nv JOIN [DANG_NHAP] dn ON nv.MaNhanVien = dn.MaNhanVien
+NgaySinh [Ngày sinh], SoDienThoai [SĐT], Email, NgayVaoLam [Ngày vào làm]
+FROM [NHAN_VIEN] nv 
 WHERE TinhTrangLamViec = 1
 GO
 
@@ -577,21 +575,28 @@ END
 GO
 
 -- Trigger tạo một user trên SQL khi thêm một nhân viên
-CREATE TRIGGER TRIGGER_SQL_ACCOUNT ON DANG_NHAP
+CREATE OR ALTER TRIGGER TRIGGER_SQL_ACCOUNT ON DANG_NHAP
 AFTER INSERT
 AS
-DECLARE @userName nvarchar(20), @passWord nvarchar(20)
-SELECT @userName=i.TenDangNhap, @passWord=i.MatKhau
-FROM inserted i
-BEGIN
-DECLARE @sqlString nvarchar(2000)
--- Tạo tài khoản login cho nhân viên, tên người dùng và mật khẩu là tài khoản được tạo trên bảng Đăng nhập
-SET @sqlString= 'CREATE LOGIN [' + @userName +'] WITH PASSWORD='''+ @passWord +''', 
-DEFAULT_DATABASE=[QUANLYTHUVIEN], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF'
-EXEC (@sqlString)
--- Tạo tài khoản người dùng đối với nhân viên đó trên database (tên người dùng trùng với tên login)
-SET @sqlString= 'CREATE USER ' + @userName +' FOR LOGIN '+ @userName
-EXEC (@sqlString)
+	DECLARE @userName nvarchar(20), @passWord nvarchar(20)
+	SELECT @userName=i.TenDangNhap, @passWord=i.MatKhau
+	FROM inserted i
+	BEGIN
+	DECLARE @sqlString nvarchar(2000)
+	-- Tạo tài khoản login cho nhân viên, tên người dùng và mật khẩu là tài khoản được tạo trên bảng Đăng nhập
+	SET @sqlString= 'CREATE LOGIN [' + @userName +'] WITH PASSWORD='''+ @passWord +''', 
+	DEFAULT_DATABASE=[QuanLyThuVien], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF'
+	EXEC (@sqlString)
+	-- Tạo tài khoản người dùng đối với nhân viên đó trên database (tên người dùng trùng với tên login)
+	SET @sqlString= 'CREATE USER ' + @userName +' FOR LOGIN '+ @userName
+	EXEC (@sqlString)
+	DECLARE @role bit
+	SELECT @role = i.LoaiTaiKhoan FROM inserted i
+	IF (@role = 0)
+		SET @sqlString =  'ALTER SERVER ROLE sysadmin ADD MEMBER ' + @userName;
+	ELSE
+		SET @sqlString = 'ALTER ROLE NhanVien ADD MEMBER ' + @userName;
+	EXEC (@sqlString)
 END
 GO
 
@@ -628,11 +633,9 @@ GO
 
 
 
-
-
-
 -- PROCEDURES --
 
+-- QUẢN LÝ SÁCH
 -- THÊM SÁCH
 CREATE OR ALTER PROCEDURE THEM_SACH (@TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
 							@GiaBia decimal(9,3), @SoLuong int, @MaTacGia1 varchar(10), @MaTacGia2 varchar(10), @MaTacGia3 varchar(10))
@@ -640,10 +643,11 @@ AS
 BEGIN
 	SET XACT_ABORT ON
 	BEGIN TRAN
-		BEGIN TRY
 			IF (@MaTacGia1 IS NULL AND @MaTacGia2 IS NULL AND @MaTacGia3 IS NULL)
-				PRINT N'Tác giả không thể trống'
-			ELSE 
+			BEGIN
+				RAISERROR(N'Chưa có tác giả!!', 16,1)
+			END
+   
 			BEGIN
 				DECLARE @MaSach varchar(10) = dbo.Auto_MaSach()
 				INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) 
@@ -656,13 +660,6 @@ BEGIN
 					INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia3)	
 			END
 		COMMIT TRAN
-		END TRY
-		BEGIN CATCH
-			ROLLBACK
-			DECLARE @err varchar(MAX)
-			SELECT @err = 'Lỗi: ' + ERROR_MESSAGE()
-			RAISERROR(@err, 16,1)
-		END CATCH
 END
 GO
 
@@ -693,7 +690,7 @@ BEGIN
 END
 GO
 
--- ĐỘC GIẢ
+-- QUẢN LÝ ĐỘC GIẢ
 -- THÊM ĐỘC GIẢ
 CREATE PROCEDURE THEM_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 							   @SDT varchar(10), @Email varchar(50))
@@ -733,7 +730,7 @@ BEGIN
 END
 GO
 
--- MƯỢN TRẢ	
+-- QUẢN LÝ MƯỢN TRẢ	
 -- THÊM PHIẾU MƯỢN
 CREATE PROCEDURE THEM_PHIEU_MUON (@MaDocGia varchar(10), @MaNhanVien varchar(10))
 AS 
@@ -829,20 +826,16 @@ END
 GO
 
 -- TRẢ SÁCH
-CREATE PROCEDURE TRA_SACH (@MaPhieuMuon varchar(10), @MaNhanVienTra varchar(10), @TinhTrang int, @MaSach varchar(10), @NgayHetHan date)
+CREATE PROCEDURE TRA_SACH (@MaPhieuMuon varchar(10), @MaNhanVienTra varchar(10), @TinhTrang int, @MaSach varchar(10), @PhatHuHong decimal, @PhatQuaHan decimal)
 AS
 BEGIN
-	DECLARE @PhatHuHong DECIMAL 
-	SET @PhatHuHong = (SELECT [dbo].[TINH_PHAT_HU_HONG](@MaSach, @TinhTrang))
-	DECLARE @PhatQuaHan DECIMAL 
-	SET @PhatQuaHan = (SELECT [dbo].[TINH_PHAT_TRE_HAN](GETDATE(), @NgayHetHan))
 	UPDATE CHI_TIET_MUON_TRA
 	SET NgayTra = GETDATE(), MaTinhTrangSach = @TinhTrang, MaNhanVienTra = @MaNhanVienTra, PhatHuHong = @PhatHuHong, PhatQuaHan = @PhatQuaHan
 	WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach
 END
 GO
 
--- TÁC GIẢ
+-- QUẢN LÝ TÁC GIẢ
 -- THÊM TÁC GIẢ
 CREATE PROCEDURE THEM_TAC_GIA (@TenTacGia nvarchar(50))
 AS 
@@ -870,7 +863,7 @@ END
 GO
 
 
--- NHÀ XUẤT BẢN
+-- QUẢN LÝ NHÀ XUẤT BẢN
 -- THÊM NHÀ XUẤT BẢN
 CREATE PROCEDURE THEM_NHA_XUAT_BAN (@TenNhaXuatBan nvarchar(50))
 AS 
@@ -898,7 +891,7 @@ END
 GO
 
 
--- CHUYÊN NGÀNH
+-- QUẢN LÝ CHUYÊN NGÀNH
 -- THÊM CHUYÊN NGÀNH
 CREATE PROCEDURE THEM_CHUYEN_NGANH (@TenChuyenNganh nvarchar(50))
 AS 
@@ -926,14 +919,17 @@ END
 GO
 
 
--- NHÂN VIÊN
+-- QUẢN LÝ NHÂN VIÊN
 -- THÊM NHÂN VIÊN
 CREATE PROCEDURE THEM_NHAN_VIEN (@HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
-								 @SDT varchar(10), @Email varchar(50))
+								 @SDT varchar(10), @Email varchar(50), @Username varchar(20), @Password varchar(20))
 AS 
 BEGIN
+	DECLARE @MaNhanVien varchar(10) = dbo.Auto_MaNhanVien()
 	INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam)
 	VALUES (@HoTen, @GioiTinh, @NgaySinh, @SDT, @Email, GETDATE())
+	INSERT INTO DANG_NHAP(TenDangNhap, MatKhau, MaNhanVien, LoaiTaiKhoan)
+	VALUES (@Username, @Password, @MaNhanVien, 1)
 END
 GO
 
@@ -956,35 +952,30 @@ BEGIN
 END
 GO
 
--- ĐĂNG NHẬP
--- THÊM TÀI KHOẢN ĐĂNG NHẬP CHO NHÂN VIÊN
-CREATE PROCEDURE THEM_DANG_NHAP (@MaNhanVien varchar(10), @Username varchar(20), @Password varchar(20))
-AS 
-BEGIN
-	INSERT INTO DANG_NHAP(TenDangNhap, MatKhau, MaNhanVien, LoaiTaiKhoan)
-	VALUES (@Username, @Password, @MaNhanVien, 1)
-END
-GO
+-- QUẢN LÝ ĐĂNG NHẬP
+-- THÊM ĐĂNG NHẬP
 
 -- THAY ĐỔI MẬT KHẨU
-CREATE PROCEDURE DOI_MAT_KHAU (@MaNhanVien varchar(10), @MatKhauCu varchar(20), @MatKhauMoi varchar(20))
+CREATE OR ALTER PROCEDURE DOI_MAT_KHAU (@TenDangNhap varchar(20), @MatKhauCu varchar(20), @MatKhauMoi varchar(20))
 AS 
 BEGIN
-	IF (@MatKhauCu = (SELECT MatKhau FROM DANG_NHAP WHERE MaNhanVien = MaNhanVien))
+	IF (@MatKhauCu = (SELECT TOP 1 MatKhau FROM DANG_NHAP WHERE TenDangNhap = @TenDangNhap))
 	BEGIN
 		UPDATE DANG_NHAP
 		SET MatKhau = @MatKhauMoi
-		WHERE MaNhanVien = @MaNhanVien
+		WHERE TenDangNhap = @TenDangNhap
+
+		DECLARE @sqlString varchar(MAX) = 'ALTER LOGIN [' + @TenDangNhap +'] WITH PASSWORD = N' + QUOTENAME(@MatKhauMoi,'''')
+		+ 'OLD_PASSWORD = N' + QUOTENAME(@MatKhauCu,'''') + N';';
+		EXEC (@sqlString)
 	END
 	ELSE PRINT 'Sai mật khẩu'
 END
 GO
 
-
-
 -- FUNCTION --
 
--- TÌM KIẾM ĐỘC GIẢ THEO MÃ SỐ
+-- TÌM KIẾM ĐỘC GIẢ THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -998,6 +989,14 @@ RETURNS TABLE
 AS RETURN (
 	SELECT * FROM VIEW_CHI_TIET_SACH
 	WHERE [Tên sách] = @TenSach)
+GO
+
+-- TÌM KIẾM NHÂN VIÊN THEO TÊN
+CREATE FUNCTION TIM_KIEM_NHAN_VIEN (@TenNhanVien nvarchar(50))
+RETURNS TABLE
+AS RETURN (
+	SELECT * FROM VIEW_CHI_TIET_NHAN_VIEN
+	WHERE [Họ tên] = @TenNhanVien)
 GO
 
 -- TÌM KIẾM CÁC SÁCH ĐANG MƯỢN THEO MÃ ĐỘC GIẢ
@@ -1016,7 +1015,7 @@ AS RETURN (
 	WHERE [Mã người mượn] = @MaDocGia)
 GO
 
--- TÌM KIẾM MƯỢN TRẢ THEO MÃ ĐỘC GIẢ
+-- TÌM KIẾM TOÀN BỘ MƯỢN TRẢ THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_MUON_TRA_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1073,15 +1072,40 @@ END
 GO
 
 -- TÍNH TIỀN PHẠT TRỄ HẠN
-CREATE FUNCTION TINH_PHAT_TRE_HAN (@NgayTra date, @NgayHetHan date)
+CREATE OR ALTER FUNCTION TINH_PHAT_TRE_HAN (@NgayHetHan date)
 RETURNS DECIMAL
 AS
 BEGIN
-	IF (@NgayTra > @NgayHetHan)
-		RETURN 1000 * DATEDIFF(dd, @NgayTra, @NgayHetHan)
+	IF (GETDATE() > @NgayHetHan)
+		RETURN 1000 * DATEDIFF(dd, @NgayHetHan, GETDATE())
 	RETURN 0
 END
 GO
+
+
+CREATE ROLE NhanVien
+--Gán các quyền trên table cho các tài khoản đăng nhập với vai trò Nhân viên
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON CHI_TIET_MUON_TRA TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON CHUYEN_NGANH TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON DOC_GIA TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON NHA_XUAT_BAN TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON PHIEU_MUON TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON SACH TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON SACH_TAC_GIA TO NhanVien
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON TAC_GIA TO NhanVien
+GRANT SELECT, REFERENCES ON DOI_TUONG_DOC_GIA TO NhanVien
+GRANT SELECT, REFERENCES ON TINH_TRANG_SACH TO NhanVien
+GRANT SELECT, UPDATE, REFERENCES ON DANG_NHAP TO NhanVien
+GRANT SELECT, REFERENCES ON NHAN_VIEN TO NhanVien
+-- Gán quyền thực thi trên các procedure, function cho role Staff
+GRANT EXECUTE TO NhanVien
+GRANT SELECT TO NhanVien
+DENY UPDATE, INSERT, DELETE ON NHAN_VIEN to NhanVien
+DENY EXECUTE ON SUA_NHAN_VIEN to NhanVien
+DENY EXECUTE ON THEM_NHAN_VIEN to NhanVien
+DENY EXECUTE ON XOA_NHAN_VIEN to NhanVien
+GO
+
 
 
 -- THÊM DỮ LIỆU VÀO DATABASE --
@@ -1160,16 +1184,16 @@ INSERT INTO TAC_GIA (TenTacGia) VALUES (N'Nguyễn Thế Bá') -- Quy hoạch x�
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Nguyễn Tiến Dũng', 1, '2002/03/30', '0982087932', 'tiendung@gmail.com', '2023/01/01')
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Nguyễn Hoàng Quang Trung', 1, '2002/01/26', '0983334910', 'nhqtrung@gmail.com', '2023/01/01')
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Lê Ngọc Linh', 0, '2002/02/03', '0983924345', 'ngoclinh@gmail.com', '2023/01/10')
-INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Hoàng Trọng Thắng', 1, '2002/02/03', '0983924567', 'htthang@gmail.com', '2023/01/10')
+/* INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Hoàng Trọng Thắng', 1, '2002/02/03', '0983924567', 'htthang@gmail.com', '2023/01/10')
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Đỗ Ngọc Quỳnh', 0, '2002/02/01', '0983924561', 'ngquynh@gmail.com', '2023/01/10')
-INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Lê Thu Hằng', 0, '2002/02/23', '0983924562', 'hangle@gmail.com', '2023/01/10')
+INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Lê Thu Hằng', 0, '2002/02/23', '0983924562', 'hangle@gmail.com', '2023/01/10') */
 
 INSERT INTO DANG_NHAP VALUES ('NV001', 'admin', 'admin123', 0)
-INSERT INTO DANG_NHAP VALUES ('NV002', 'hoangtrung', 'hoangtrung123', 1)
+INSERT INTO DANG_NHAP VALUES ('NV002', 'hoangtrung', 'trung123', 1)
 INSERT INTO DANG_NHAP VALUES ('NV003', 'ngoclinh', 'ngoclinh123', 1)
-INSERT INTO DANG_NHAP VALUES ('NV004', 'trongthang', 'trongthang0123', 1)
+/* INSERT INTO DANG_NHAP VALUES ('NV004', 'trongthang', 'trongthang0123', 1)
 INSERT INTO DANG_NHAP VALUES ('NV005', 'ngocquynh', 'quynh000', 1)
-INSERT INTO DANG_NHAP VALUES ('NV006', 'thuhang', '00001111', 1)
+INSERT INTO DANG_NHAP VALUES ('NV006', 'thuhang', '00001111', 1) */
 
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Thiết kế ô tô', 0, 'NXB0001', 'CN0003', 60000, 120)
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Thực hành cơ sở và ứng dụng IoT', 0, 'NXB0001', 'CN0002', 45000, 80)
@@ -1180,12 +1204,6 @@ INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuon
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Nghệ thuật trang điểm', 1, 'NXB0004', 'CN0011', 20000, 30)
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch', 1, 'NXB0005', 'CN0002', 65000, 45)
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Quy hoạch xây dựng phát triển đô thị', 1, 'NXB0006', 'CN0012', 85000, 95)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 1', 1, 'NXB0005', 'CN0002', 65000, 45)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 2', 1, 'NXB0005', 'CN0002', 65000, 45)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 3', 1, 'NXB0005', 'CN0002', 65000, 45)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 4', 1, 'NXB0005', 'CN0002', 65000, 45)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 5', 1, 'NXB0005', 'CN0002', 65000, 45)
-INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Chương trình dịch 6', 1, 'NXB0005', 'CN0002', 65000, 45)
 
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00001', 'TG0001')
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00001', 'TG0002')
@@ -1205,7 +1223,7 @@ INSERT INTO SACH_TAC_GIA VALUES ('SACH00008', 'TG0015')
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00008', 'TG0016')
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00009', 'TG0017')
 
-INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110127', 'NV002', '2023/02/01')
+/* INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110127', 'NV002', '2023/02/01')
 INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110000', 'NV003', '2023/03/01')
 INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20149023', 'NV001', '2023/03/05')
 INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110127', 'NV003', '2023/03/09')
@@ -1227,10 +1245,6 @@ INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('0000000
 INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00010', '2024/03/30')
 INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00011', '2024/03/30')
 INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00012', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00013', '2024/03/30') */
-
-UPDATE CHI_TIET_MUON_TRA SET NgayTra = GETDATE(), MaTinhTrangSach = 1
-FROM [PHIEU_MUON] pm, [CHI_TIET_MUON_TRA] ctmt
-WHERE pm.MaPhieuMuon = ctmt.MaPhieuMuon AND	MaSach = 'SACH00004'
+INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00013', '2024/03/30') */ */
 
 

@@ -80,6 +80,7 @@
             this.đăngNhậpToolStripMenuItem.Name = "đăngNhậpToolStripMenuItem";
             this.đăngNhậpToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
             this.đăngNhậpToolStripMenuItem.Text = "Đổi mật khẩu";
+            this.đăngNhậpToolStripMenuItem.Click += new System.EventHandler(this.DoiMatKhau_Click);
             // 
             // thayĐổiThôngTinToolStripMenuItem
             // 

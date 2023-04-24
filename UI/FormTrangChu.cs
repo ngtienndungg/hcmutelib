@@ -176,5 +176,11 @@ namespace LibraryManagement
             formNhanVien.StartPosition = FormStartPosition.Manual;
             formNhanVien.Location = new Point(0, 0);
         }
+
+        private void DoiMatKhau_Click(object sender, EventArgs e)
+        {
+            DialogDoiMatKhau dialogDoiMatKhau = new DialogDoiMatKhau();
+            dialogDoiMatKhau.Show();
+        }
     }
 }

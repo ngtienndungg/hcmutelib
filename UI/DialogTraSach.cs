@@ -43,24 +43,31 @@ namespace LibraryManagement
 
         private void btTraSach_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("TRA_SACH", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("TRA_SACH", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = FormMuonTraSach.maPhieuMuon;
-            cmd.Parameters.Add("@MaNhanVienTra", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
-            cmd.Parameters.Add("@TinhTrang", SqlDbType.Int).Value = cbTinhTrang.SelectedValue;
-            cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = FormMuonTraSach.maSach;
-            cmd.Parameters.Add("@PhatHuHong", SqlDbType.Decimal).Value = phatHuHong;
-            cmd.Parameters.Add("@PhatQuaHan", SqlDbType.Decimal).Value = FormMuonTraSach.phatQuaHan;
-            cmd.ExecuteNonQuery();
+                cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = FormMuonTraSach.maPhieuMuon;
+                cmd.Parameters.Add("@MaNhanVienTra", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
+                cmd.Parameters.Add("@TinhTrang", SqlDbType.Int).Value = cbTinhTrang.SelectedValue;
+                cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = FormMuonTraSach.maSach;
+                cmd.Parameters.Add("@PhatHuHong", SqlDbType.Decimal).Value = phatHuHong;
+                cmd.Parameters.Add("@PhatQuaHan", SqlDbType.Decimal).Value = FormMuonTraSach.phatQuaHan;
+                cmd.ExecuteNonQuery();
 
-            MessageBox.Show("Trả thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Trả thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            conn.Close();
-            this.Close();
+                conn.Close();
+                this.Close();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void cbTinhTrang_SelectedIndexChanged(object sender, EventArgs e)

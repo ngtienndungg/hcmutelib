@@ -269,21 +269,28 @@ namespace LibraryManagement
 
         private void btGiaHan_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("GIA_HAN_SACH", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("GIA_HAN_SACH", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = tbMaPhieuMuon.Text;
-            cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text;
-            cmd.ExecuteNonQuery();
+                cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = tbMaPhieuMuon.Text;
+                cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text;
+                cmd.ExecuteNonQuery();
 
-            conn.Close();
+                conn.Close();
 
-            MessageBox.Show("Gia hạn thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Gia hạn thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            LoadData();
+                LoadData();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

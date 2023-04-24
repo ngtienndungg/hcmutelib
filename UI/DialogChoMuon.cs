@@ -74,40 +74,47 @@ namespace LibraryManagement
 
         private void btChoMuon_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
-
-            SqlCommand cmd = new SqlCommand("Auto_MaPhieuMuon", conn);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = "SELECT [dbo].[Auto_MaPhieuMuon]()";
-            var result = cmd.ExecuteScalar();
-            String maPhieuMuon = (String)result;
-
-            SqlCommand cmd1 = new SqlCommand("THEM_PHIEU_MUON", conn);
-            cmd1.CommandType = CommandType.StoredProcedure;
-            cmd1.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text;
-            cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
-            cmd1.ExecuteNonQuery();
-
-
-            var labels = new List<Label>() { label1, label2, label3, label4, label5, label6, label7, label8, label9, label10 };
-            foreach (var label in labels)
+            try
             {
-                if (label.Text != "")
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("Auto_MaPhieuMuon", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT [dbo].[Auto_MaPhieuMuon]()";
+                var result = cmd.ExecuteScalar();
+                String maPhieuMuon = (String)result;
+
+                SqlCommand cmd1 = new SqlCommand("THEM_PHIEU_MUON", conn);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text;
+                cmd1.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = DbHelper.MaNhanVien;
+                cmd1.ExecuteNonQuery();
+
+
+                var labels = new List<Label>() { label1, label2, label3, label4, label5, label6, label7, label8, label9, label10 };
+                foreach (var label in labels)
                 {
-                    SqlCommand cmd2 = new SqlCommand("THEM_SACH_MUON", conn);
-                    cmd2.CommandType = CommandType.StoredProcedure;
-                    cmd2.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = maPhieuMuon;
-                    cmd2.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = label.Text;
-                    cmd2.ExecuteNonQuery();
+                    if (label.Text != "")
+                    {
+                        SqlCommand cmd2 = new SqlCommand("THEM_SACH_MUON", conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+                        cmd2.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = maPhieuMuon;
+                        cmd2.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = label.Text;
+                        cmd2.ExecuteNonQuery();
+                    }
+                    else break;
                 }
-                else break;
+                LoadData();
+                MessageBox.Show("Đã mượn thành công"
+                         , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                conn.Close();
+                this.Close();
             }
-            LoadData();
-            MessageBox.Show("Đã mượn thành công"
-                     , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            conn.Close();
-            this.Close();
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

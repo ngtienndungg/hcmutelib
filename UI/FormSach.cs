@@ -211,45 +211,52 @@ namespace LibraryManagement
 
         private void btCapNhat_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SUA_SACH", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("SUA_SACH", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text.ToString();
-            cmd.Parameters.Add("@TenSach", SqlDbType.NVarChar).Value = tbTenSach.Text.ToString();
-            if (rbGiaoTrinh.Checked == true)
-                cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 0;
-            else
-                cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 1;
+                cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text.ToString();
+                cmd.Parameters.Add("@TenSach", SqlDbType.NVarChar).Value = tbTenSach.Text.ToString();
+                if (rbGiaoTrinh.Checked == true)
+                    cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 0;
+                else
+                    cmd.Parameters.Add("@LoaiSach", SqlDbType.Bit).Value = 1;
 
-            cmd.Parameters.Add("@MaNhaXuatBan", SqlDbType.VarChar).Value = cbNhaXuatBan.SelectedValue;
-            cmd.Parameters.Add("@MaChuyenNganh", SqlDbType.VarChar).Value = cbChuyenNganh.SelectedValue;
+                cmd.Parameters.Add("@MaNhaXuatBan", SqlDbType.VarChar).Value = cbNhaXuatBan.SelectedValue;
+                cmd.Parameters.Add("@MaChuyenNganh", SqlDbType.VarChar).Value = cbChuyenNganh.SelectedValue;
 
-            // _ = decimal.TryParse(tbGiaBia.Text, out decimal temp);
+                // _ = decimal.TryParse(tbGiaBia.Text, out decimal temp);
 
-            cmd.Parameters.Add("@GiaBia", SqlDbType.Decimal).Value = tbGiaBia.Text.ToString();
+                cmd.Parameters.Add("@GiaBia", SqlDbType.Decimal).Value = tbGiaBia.Text.ToString();
 
-            // int soLuong = int.Parse(tbSoLuong.Text);
-            cmd.Parameters.Add("@SoLuong", SqlDbType.Int).Value = tbSoLuong.Text.ToString();
+                // int soLuong = int.Parse(tbSoLuong.Text);
+                cmd.Parameters.Add("@SoLuong", SqlDbType.Int).Value = tbSoLuong.Text.ToString();
 
-            cmd.Parameters.Add("@MaTacGia1", SqlDbType.VarChar).Value = cbTacGia1.SelectedValue;
-            if (cbTacGia2.SelectedIndex == -1)
-                cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = DBNull.Value;
-            else
-                cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = cbTacGia2.SelectedValue;
-            if (cbTacGia3.SelectedIndex == -1)
-                cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = DBNull.Value;
-            else
-                cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = cbTacGia3.SelectedValue;
-           
-            cmd.ExecuteNonQuery();
-            MessageBox.Show("Thay đổi thành công"
-                     , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            conn.Close();
-                
-            LoadData();
+                cmd.Parameters.Add("@MaTacGia1", SqlDbType.VarChar).Value = cbTacGia1.SelectedValue;
+                if (cbTacGia2.SelectedIndex == -1)
+                    cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = DBNull.Value;
+                else
+                    cmd.Parameters.Add("@MaTacGia2", SqlDbType.VarChar).Value = cbTacGia2.SelectedValue;
+                if (cbTacGia3.SelectedIndex == -1)
+                    cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = DBNull.Value;
+                else
+                    cmd.Parameters.Add("@MaTacGia3", SqlDbType.VarChar).Value = cbTacGia3.SelectedValue;
+
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Thay đổi thành công"
+                         , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                conn.Close();
+
+                LoadData();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btTimKiem_Click(object sender, EventArgs e)

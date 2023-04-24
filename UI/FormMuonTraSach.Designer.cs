@@ -198,6 +198,7 @@
             this.btGiaHan.TabIndex = 19;
             this.btGiaHan.Text = "Gia hạn";
             this.btGiaHan.UseVisualStyleBackColor = true;
+            this.btGiaHan.Click += new System.EventHandler(this.btGiaHan_Click);
             // 
             // btTraSach
             // 

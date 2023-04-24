@@ -246,6 +246,8 @@ namespace LibraryManagement
 
             DialogTraSach traSach = new DialogTraSach();
             traSach.ShowDialog();
+
+            LoadData();
         }
 
         private void dgvMuonTra_CellClick(object? sender, DataGridViewCellEventArgs? e)
@@ -258,6 +260,25 @@ namespace LibraryManagement
 
             DateTime date = (DateTime)dgvMuonTra.Rows[r].Cells[6].Value;
             tbNgayHetHan.Text = date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+        }
+
+        private void btGiaHan_Click(object sender, EventArgs e)
+        {
+            SqlConnection conn = DbHelper.Connect();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("GIA_HAN_SACH", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add("@MaPhieuMuon", SqlDbType.VarChar).Value = tbMaPhieuMuon.Text;
+            cmd.Parameters.Add("@MaSach", SqlDbType.VarChar).Value = tbMaSach.Text;
+            cmd.ExecuteNonQuery();
+
+            conn.Close();
+
+            MessageBox.Show("Gia hạn thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            LoadData();
         }
     }
 }

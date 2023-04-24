@@ -46,26 +46,33 @@ namespace LibraryManagement
 
         private void btThem_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("THEM_DOC_GIA", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
-            if (rbNam.Checked)
-                cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 1;
-            else
-                cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 0;
-            cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar).Value = tbHoTen.Text.ToString();
-            cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = tbEmail.Text.ToString();
-            cmd.Parameters.Add("@SDT", SqlDbType.VarChar).Value = tbSDT.Text.ToString();
-            cmd.Parameters.Add("@MaDoiTuong", SqlDbType.Int).Value = cbDoiTuong.SelectedValue;
-            cmd.Parameters.Add("@NgaySinh", SqlDbType.Date).Value = dateTimePicker.Value.Date;
-            cmd.ExecuteNonQuery();
-            MessageBox.Show("Đã thêm thành công"
-                     , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            conn.Close();
-            this.Close();
+                SqlCommand cmd = new SqlCommand("THEM_DOC_GIA", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@MaDocGia", SqlDbType.VarChar).Value = tbMaDocGia.Text.ToString();
+                if (rbNam.Checked)
+                    cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 1;
+                else
+                    cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 0;
+                cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar).Value = tbHoTen.Text.ToString();
+                cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = tbEmail.Text.ToString();
+                cmd.Parameters.Add("@SDT", SqlDbType.VarChar).Value = tbSDT.Text.ToString();
+                cmd.Parameters.Add("@MaDoiTuong", SqlDbType.Int).Value = cbDoiTuong.SelectedValue;
+                cmd.Parameters.Add("@NgaySinh", SqlDbType.Date).Value = dateTimePicker.Value.Date;
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Đã thêm thành công"
+                         , "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                conn.Close();
+                this.Close();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

@@ -636,54 +636,101 @@ GO
 -- PROCEDURES --
 
 -- QUẢN LÝ SÁCH
--- THÊM SÁCH
+
+-- THÊM SÁCH (VÀ THÊM TÁC GIẢ CỦA SÁCH VÀ BẢNG SACH_TAC_GIA)
 CREATE OR ALTER PROCEDURE THEM_SACH (@TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
 							@GiaBia decimal(9,3), @SoLuong int, @MaTacGia1 varchar(10), @MaTacGia2 varchar(10), @MaTacGia3 varchar(10))
 AS 
 BEGIN
 	SET XACT_ABORT ON
-	BEGIN TRAN
+	BEGIN TRY
+		BEGIN TRAN
 			IF (@MaTacGia1 IS NULL AND @MaTacGia2 IS NULL AND @MaTacGia3 IS NULL)
 			BEGIN
 				RAISERROR(N'Chưa có tác giả!!', 16,1)
+				RETURN
 			END
-   
+			IF (@GiaBia < 0) 
 			BEGIN
-				DECLARE @MaSach varchar(10) = dbo.Auto_MaSach()
-				INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) 
-				VALUES (@TenSach, @LoaiSach, @MaNhaXuatBan, @MaChuyenNganh, @GiaBia, @SoLuong);
-				IF (@MaTacGia1 IS NOT NULL)
-					INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia1)
-				IF (@MaTacGia2 IS NOT NULL)
-					INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia2)
-				IF (@MaTacGia3 IS NOT NULL)
-					INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia3)	
+				RAISERROR(N'Giá bìa không hợp lệ!!', 16,1)
+				RETURN
 			END
+			IF (@SoLuong < 0)
+			BEGIN
+				RAISERROR(N'Số lượng không hợp lệ!!', 16,1)
+				RETURN
+			END
+
+			DECLARE @MaSach varchar(10) = dbo.Auto_MaSach()
+			INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) 
+			VALUES (@TenSach, @LoaiSach, @MaNhaXuatBan, @MaChuyenNganh, @GiaBia, @SoLuong)
+
+			IF (@MaTacGia1 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia1)
+			IF (@MaTacGia2 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia2)
+			IF (@MaTacGia3 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia3)	
 		COMMIT TRAN
+	END TRY
+	BEGIN CATCH 
+		ROLLBACK TRAN
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
--- SỬA SÁCH
-CREATE PROCEDURE SUA_SACH (@MaSach varchar(10), @TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
+-- SỬA SÁCH (VÀ SỬA TÁC GIẢ CỦA SÁCH TRONG BẢNG SACH_TAC_GIA)
+CREATE OR ALTER PROCEDURE SUA_SACH (@MaSach varchar(10), @TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
 							@GiaBia decimal(9,3), @SoLuong int, @MaTacGia1 varchar(10), @MaTacGia2 varchar(10), @MaTacGia3 varchar(10))
 AS 
 BEGIN
-	DELETE SACH_TAC_GIA WHERE MaSach = @MaSach
-	IF (@MaTacGia1 IS NOT NULL)
-		INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia1)
-	IF (@MaTacGia2 IS NOT NULL)
-		INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia2)
-	IF (@MaTacGia3 IS NOT NULL)
-		INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia3)
+	BEGIN TRY
+		BEGIN TRAN
+			IF (@MaTacGia1 IS NULL AND @MaTacGia2 IS NULL AND @MaTacGia3 IS NULL)
+			BEGIN
+				RAISERROR(N'Chưa có tác giả!!', 16,1)
+				RETURN
+			END
+			IF (@GiaBia < 0) 
+			BEGIN
+				RAISERROR(N'Giá bìa không hợp lệ!!', 16,1)
+				RETURN
+			END
+			IF (@SoLuong < 0)
+			BEGIN
+				RAISERROR(N'Số lượng không hợp lệ!!', 16,1)
+				RETURN
+			END
 
-	UPDATE SACH
-	SET TenSach = @TenSach, LoaiSach = @LoaiSach, MaNhaXuatBan = @MaNhaXuatBan, MaChuyenNganh = @MaChuyenNganh, GiaBia = @GiaBia, SoLuong = @SoLuong
-	WHERE MaSach = @MaSach
+			DELETE SACH_TAC_GIA WHERE MaSach = @MaSach
+			IF (@MaTacGia1 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia1)
+			IF (@MaTacGia2 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia2)
+			IF (@MaTacGia3 IS NOT NULL)
+				INSERT INTO SACH_TAC_GIA (MaSach, MaTacGia) VALUES (@MaSach, @MaTacGia3)
+
+			UPDATE SACH
+			SET TenSach = @TenSach, LoaiSach = @LoaiSach, MaNhaXuatBan = @MaNhaXuatBan, MaChuyenNganh = @MaChuyenNganh, GiaBia = @GiaBia, SoLuong = @SoLuong
+			WHERE MaSach = @MaSach
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH 
+		ROLLBACK TRAN
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
 -- XOÁ SÁCH
-CREATE PROCEDURE XOA_SACH (@MaSach varchar(10))
+CREATE OR ALTER PROCEDURE XOA_SACH (@MaSach varchar(10))
 AS
 BEGIN 
 	DELETE SACH WHERE MaSach = @MaSach
@@ -692,36 +739,84 @@ GO
 
 -- QUẢN LÝ ĐỘC GIẢ
 -- THÊM ĐỘC GIẢ
-CREATE PROCEDURE THEM_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
+CREATE OR ALTER PROCEDURE THEM_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 							   @SDT varchar(10), @Email varchar(50))
 AS 
 BEGIN
-	INSERT INTO DOC_GIA (MaDocGia, MaDoiTuong, HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayLamThe, NgayHetHan)
-	VALUES (@MaDocGia, @MaDoiTuong, @HoTen, @GioiTinh, @NgaySinh, @SDT, @Email, GETDATE(), DATEADD(yyyy, 1, GETDATE()))
+	BEGIN TRY
+		IF (DATEDIFF(year, @NgaySinh, GETDATE())<18)
+		BEGIN 
+			RAISERROR(N'Độc giả chưa đủ 18 tuổi!!', 16,1)
+			RETURN
+		END
+		IF (len(@SDT)<>10) 
+		BEGIN
+			RAISERROR(N'Số điện thoại không hợp lệ!!', 16,1)
+			RETURN
+		END
+		IF (@Email NOT LIKE '%___@___%.__%')
+		BEGIN
+			RAISERROR(N'Email không hợp lệ!!', 16,1)
+			RETURN
+		END
+		INSERT INTO DOC_GIA (MaDocGia, MaDoiTuong, HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayLamThe, NgayHetHan)
+		VALUES (@MaDocGia, @MaDoiTuong, @HoTen, @GioiTinh, @NgaySinh, @SDT, @Email, GETDATE(), DATEADD(yyyy, 1, GETDATE()))
+	END TRY
+	BEGIN CATCH 
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
+
 -- SỬA ĐỘC GIẢ
-CREATE PROCEDURE SUA_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
+CREATE OR ALTER PROCEDURE SUA_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 							   @SDT varchar(10), @Email varchar(50))
 AS 
 BEGIN
-	UPDATE DOC_GIA
-	SET MaDoiTuong = @MaDoiTuong, HoTen = @HoTen, GioiTinh = @GioiTinh, NgaySinh = @NgaySinh, SoDienThoai = @SDT, Email = @Email
-	WHERE MaDocGia = @MaDocGia
+	BEGIN TRY
+		IF (DATEDIFF(year, @NgaySinh, GETDATE())<18)
+		BEGIN 
+			RAISERROR(N'Độc giả chưa đủ 18 tuổi!!', 16,1)
+			RETURN
+		END
+		IF (len(@SDT)<>10) 
+		BEGIN
+			RAISERROR(N'Số điện thoại không hợp lệ!!', 16,1)
+			RETURN
+		END
+		IF (@Email NOT LIKE '%___@___%.__%')
+		BEGIN
+			RAISERROR(N'Email không hợp lệ!!', 16,1)
+			RETURN
+		END
+
+		UPDATE DOC_GIA
+		SET MaDoiTuong = @MaDoiTuong, HoTen = @HoTen, GioiTinh = @GioiTinh, NgaySinh = @NgaySinh, SoDienThoai = @SDT, Email = @Email
+		WHERE MaDocGia = @MaDocGia
+	END TRY
+	BEGIN CATCH 
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
 -- XOÁ ĐỘC GIẢ
-CREATE PROCEDURE XOA_DOC_GIA (@MaDocGia varchar(10))
+CREATE OR ALTER PROCEDURE XOA_DOC_GIA (@MaDocGia varchar(10))
 AS
 BEGIN 
 	DELETE DOC_GIA WHERE MaDocGia = @MaDocGia
 END
 GO
 
--- GIA HẠN THẺ ĐỘC GIẢ
-CREATE PROCEDURE GIA_HAN (@MaDocGia varchar(10))
+-- GIA HẠN THẺ ĐỘC GIẢ (1 NĂM)
+CREATE OR ALTER PROCEDURE GIA_HAN (@MaDocGia varchar(10))
 AS
 BEGIN
 	UPDATE DOC_GIA
@@ -732,7 +827,7 @@ GO
 
 -- QUẢN LÝ MƯỢN TRẢ	
 -- THÊM PHIẾU MƯỢN
-CREATE PROCEDURE THEM_PHIEU_MUON (@MaDocGia varchar(10), @MaNhanVien varchar(10))
+CREATE OR ALTER PROCEDURE THEM_PHIEU_MUON (@MaDocGia varchar(10), @MaNhanVien varchar(10))
 AS 
 BEGIN
 	INSERT INTO PHIEU_MUON(MaDocGia, MaNhanVien, NgayMuon, SoLuong)
@@ -744,41 +839,44 @@ GO
 CREATE OR ALTER PROCEDURE THEM_SACH_MUON (@MaPhieuMuon varchar(10), @MaSach varchar(10))
 AS
 BEGIN
-	SET XACT_ABORT ON
-	BEGIN TRAN
-		BEGIN TRY
-			DECLARE @DoiTuong int = (SELECT TOP 1 dg.MaDoiTuong
-									 FROM CHI_TIET_MUON_TRA ctmt JOIN PHIEU_MUON pm ON ctmt.MaPhieuMuon = pm.MaPhieuMuon
-									 JOIN DOC_GIA dg ON pm.MaDocGia = dg.MaDocGia WHERE pm.MaPhieuMuon = @MaPhieuMuon
-									 )
-			DECLARE @LoaiSach bit = (SELECT TOP 1 s.LoaiSach FROM CHI_TIET_MUON_TRA ctmt JOIN SACH s ON ctmt.MaSach = s.MaSach
-									 WHERE s.MaSach = @MaSach)
-			DECLARE @NgayHetHan date
-			IF (@LoaiSach = 1)
-			BEGIN
-				IF (@DoiTuong = 5)
-					SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
-				ELSE 
-					SET @NgayHetHan = DATEADD(dd, 28, GETDATE())
-			END
-			ELSE BEGIN
-				IF (@DoiTuong = 4)
-					SET @NgayHetHan = DATEADD(dd, 56, GETDATE())
-				ELSE IF (@DoiTuong = 5)
-					SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
-				ELSE 
-					SET @NgayHetHan = DATEADD(mm, 4, GETDATE())
-			END
-			INSERT INTO CHI_TIET_MUON_TRA(MaPhieuMuon, MaSach, NgayHetHan)
-			VALUES (@MaPhieuMuon, @MaSach, @NgayHetHan)
-		COMMIT TRAN
-		END TRY
-		BEGIN CATCH
-			ROLLBACK
-			DECLARE @err varchar(MAX)
-			SELECT @err = 'Lỗi: ' + ERROR_MESSAGE()
-			RAISERROR(@err, 16,1)
-		END CATCH
+	BEGIN TRY
+		IF ((SELECT SoLuong FROM SACH WHERE MaSach = @MaSach) = 0)
+		BEGIN
+			RAISERROR('Sách được chọn đã hết!!', 16, 1)
+			RETURN
+		END
+		-- (Các điều kiện khác về vi phạm quy định mượn được kiểm tra và raiserror trong trigger)
+		DECLARE @DoiTuong int = (SELECT dg.MaDoiTuong
+								 FROM PHIEU_MUON pm JOIN DOC_GIA dg ON pm.MaDocGia = dg.MaDocGia
+								 WHERE pm.MaPhieuMuon = @MaPhieuMuon)
+		DECLARE @LoaiSach bit = (SELECT LoaiSach FROM SACH WHERE MaSach = @MaSach)
+		DECLARE @NgayHetHan date
+		-- Tuỳ theo loại sách và đối tượng mượn sách, 
+		-- thời gian hết hạn tự động được gia hạn theo quy định
+		IF (@LoaiSach = 1)
+		BEGIN
+			IF (@DoiTuong = 5)
+				SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
+			ELSE 
+				SET @NgayHetHan = DATEADD(dd, 28, GETDATE())
+		END
+		ELSE BEGIN
+			IF (@DoiTuong = 4)
+				SET @NgayHetHan = DATEADD(dd, 56, GETDATE())
+			ELSE IF (@DoiTuong = 5)
+				SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
+			ELSE 
+				SET @NgayHetHan = DATEADD(mm, 4, GETDATE())
+		END
+		INSERT INTO CHI_TIET_MUON_TRA(MaPhieuMuon, MaSach, NgayHetHan)
+		VALUES (@MaPhieuMuon, @MaSach, @NgayHetHan)
+	END TRY
+	BEGIN CATCH
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
@@ -786,58 +884,73 @@ GO
 CREATE OR ALTER PROCEDURE GIA_HAN_SACH (@MaPhieuMuon varchar(10), @MaSach varchar(10))
 AS
 BEGIN
-	SET XACT_ABORT ON
-	BEGIN TRAN
-		BEGIN TRY
-			DECLARE @DoiTuong int = (SELECT TOP 1 dg.MaDoiTuong
-									 FROM CHI_TIET_MUON_TRA ctmt JOIN PHIEU_MUON pm ON ctmt.MaPhieuMuon = pm.MaPhieuMuon
-									 JOIN DOC_GIA dg ON pm.MaDocGia = dg.MaDocGia WHERE pm.MaPhieuMuon = @MaPhieuMuon
-									 )
-			DECLARE @LoaiSach bit = (SELECT TOP 1 s.LoaiSach FROM CHI_TIET_MUON_TRA ctmt JOIN SACH s ON ctmt.MaSach = s.MaSach
-									 WHERE s.MaSach = @MaSach)
-			DECLARE @NgayHetHan date
-			IF (@LoaiSach = 1)
-			BEGIN
-				IF (@DoiTuong = 5)
-					SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
-				ELSE 
-					SET @NgayHetHan = DATEADD(dd, 28, GETDATE())
-			END
-			ELSE BEGIN
-				IF (@DoiTuong = 4)
-					SET @NgayHetHan = DATEADD(dd, 56, GETDATE())
-				ELSE IF (@DoiTuong = 5)
-					SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
-				ELSE 
-					SET @NgayHetHan = DATEADD(mm, 4, GETDATE())
-			END
-			UPDATE CHI_TIET_MUON_TRA
-			SET NgayHetHan = @NgayHetHan
-			WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach
-		COMMIT TRAN
-		END TRY
-		BEGIN CATCH
-			ROLLBACK
-			DECLARE @err varchar(MAX)
-			SELECT @err = 'Lỗi: ' + ERROR_MESSAGE()
-			RAISERROR(@err, 16,1)
-		END CATCH
+	BEGIN TRY
+		IF (GETDATE()>(SELECT NgayHetHan FROM CHI_TIET_MUON_TRA
+					   WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach))
+		BEGIN
+			RAISERROR('Sách đã trễ hạn, không thể gia hạn. Vui lòng trả sách!!', 16, 1)
+			RETURN
+		END
+		DECLARE @DoiTuong int = (SELECT dg.MaDoiTuong
+								 FROM PHIEU_MUON pm JOIN DOC_GIA dg ON pm.MaDocGia = dg.MaDocGia
+								 WHERE pm.MaPhieuMuon = @MaPhieuMuon)
+		DECLARE @LoaiSach bit = (SELECT LoaiSach FROM SACH WHERE MaSach = @MaSach)
+		DECLARE @NgayHetHan date
+		IF (@LoaiSach = 1)
+		BEGIN
+			IF (@DoiTuong = 5)
+				SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
+			ELSE 
+				SET @NgayHetHan = DATEADD(dd, 28, GETDATE())
+		END
+		ELSE BEGIN
+			IF (@DoiTuong = 4)
+				SET @NgayHetHan = DATEADD(dd, 56, GETDATE())
+			ELSE IF (@DoiTuong = 5)
+				SET @NgayHetHan = DATEADD(yyyy, 1, GETDATE())
+			ELSE 
+				SET @NgayHetHan = DATEADD(mm, 4, GETDATE())
+		END
+		UPDATE CHI_TIET_MUON_TRA
+		SET NgayHetHan = @NgayHetHan
+		WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach
+	END TRY
+	BEGIN CATCH
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END 
 GO
 
 -- TRẢ SÁCH
-CREATE PROCEDURE TRA_SACH (@MaPhieuMuon varchar(10), @MaNhanVienTra varchar(10), @TinhTrang int, @MaSach varchar(10), @PhatHuHong decimal, @PhatQuaHan decimal)
+CREATE OR ALTER PROCEDURE TRA_SACH (@MaPhieuMuon varchar(10), @MaNhanVienTra varchar(10), @TinhTrang int, @MaSach varchar(10), @PhatHuHong decimal, @PhatQuaHan decimal)
 AS
 BEGIN
-	UPDATE CHI_TIET_MUON_TRA
-	SET NgayTra = GETDATE(), MaTinhTrangSach = @TinhTrang, MaNhanVienTra = @MaNhanVienTra, PhatHuHong = @PhatHuHong, PhatQuaHan = @PhatQuaHan
-	WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach
-END
+	BEGIN TRY
+		IF ((SELECT NgayTra FROM CHI_TIET_MUON_TRA 
+			WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach) IS NOT NULL)
+		BEGIN
+			RAISERROR('Sách này đã được trả rồi. Vui lòng kiểm tra lại!!', 16, 1)
+			RETURN
+		END
+		UPDATE CHI_TIET_MUON_TRA
+		SET NgayTra = GETDATE(), MaTinhTrangSach = @TinhTrang, MaNhanVienTra = @MaNhanVienTra, PhatHuHong = @PhatHuHong, PhatQuaHan = @PhatQuaHan
+		WHERE MaPhieuMuon = @MaPhieuMuon AND MaSach = @MaSach
+	END TRY
+	BEGIN CATCH
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
+END 
 GO
 
 -- QUẢN LÝ TÁC GIẢ
 -- THÊM TÁC GIẢ
-CREATE PROCEDURE THEM_TAC_GIA (@TenTacGia nvarchar(50))
+CREATE OR ALTER PROCEDURE THEM_TAC_GIA (@TenTacGia nvarchar(50))
 AS 
 BEGIN
 	INSERT INTO TAC_GIA(TenTacGia) VALUES (@TenTacGia)
@@ -845,7 +958,7 @@ END
 GO
 
 -- SỬA TÁC GIẢ
-CREATE PROCEDURE SUA_TAC_GIA (@MaTacGia varchar(10), @TenTacGia nvarchar(50))
+CREATE OR ALTER PROCEDURE SUA_TAC_GIA (@MaTacGia varchar(10), @TenTacGia nvarchar(50))
 AS 
 BEGIN
 	UPDATE TAC_GIA
@@ -855,7 +968,7 @@ END
 GO
 
 -- XOÁ TÁC GIẢ
-CREATE PROCEDURE XOA_TAC_GIA (@MaTacGia varchar(10))
+CREATE OR ALTER PROCEDURE XOA_TAC_GIA (@MaTacGia varchar(10))
 AS
 BEGIN 
 	DELETE TAC_GIA WHERE MaTacGia = @MaTacGia
@@ -865,7 +978,7 @@ GO
 
 -- QUẢN LÝ NHÀ XUẤT BẢN
 -- THÊM NHÀ XUẤT BẢN
-CREATE PROCEDURE THEM_NHA_XUAT_BAN (@TenNhaXuatBan nvarchar(50))
+CREATE OR ALTER PROCEDURE THEM_NHA_XUAT_BAN (@TenNhaXuatBan nvarchar(50))
 AS 
 BEGIN
 	INSERT INTO NHA_XUAT_BAN(TenNhaXuatBan) VALUES (@TenNhaXuatBan)
@@ -873,7 +986,7 @@ END
 GO
 
 -- SỬA NHÀ XUẤT BẢN
-CREATE PROCEDURE SUA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10), @TenNhaXuatBan nvarchar(50))
+CREATE OR ALTER PROCEDURE SUA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10), @TenNhaXuatBan nvarchar(50))
 AS 
 BEGIN
 	UPDATE NHA_XUAT_BAN
@@ -883,7 +996,7 @@ END
 GO
 
 -- XOÁ NHÀ XUẤT BẢN
-CREATE PROCEDURE XOA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10))
+CREATE OR ALTER PROCEDURE XOA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10))
 AS
 BEGIN 
 	DELETE NHA_XUAT_BAN WHERE MaNhaXuatBan = @MaNhaXuatBan
@@ -893,7 +1006,7 @@ GO
 
 -- QUẢN LÝ CHUYÊN NGÀNH
 -- THÊM CHUYÊN NGÀNH
-CREATE PROCEDURE THEM_CHUYEN_NGANH (@TenChuyenNganh nvarchar(50))
+CREATE OR ALTER PROCEDURE THEM_CHUYEN_NGANH (@TenChuyenNganh nvarchar(50))
 AS 
 BEGIN
 	INSERT INTO CHUYEN_NGANH(TenChuyenNganh) VALUES (@TenChuyenNganh)
@@ -901,7 +1014,7 @@ END
 GO
 
 -- SỬA CHUYÊN NGÀNH
-CREATE PROCEDURE SUA_CHUYEN_NGANH (@MaChuyenNganh varchar(10), @TenChuyenNganh nvarchar(50))
+CREATE OR ALTER PROCEDURE SUA_CHUYEN_NGANH (@MaChuyenNganh varchar(10), @TenChuyenNganh nvarchar(50))
 AS 
 BEGIN
 	UPDATE CHUYEN_NGANH
@@ -920,8 +1033,8 @@ GO
 
 
 -- QUẢN LÝ NHÂN VIÊN
--- THÊM NHÂN VIÊN
-CREATE PROCEDURE THEM_NHAN_VIEN (@HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
+-- THÊM NHÂN VIÊN (BAO GỒM CẢ THÊM TÀI KHOẢN ĐĂNG NHẬP)
+CREATE OR ALTER PROCEDURE THEM_NHAN_VIEN (@HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 								 @SDT varchar(10), @Email varchar(50), @Username varchar(20), @Password varchar(20))
 AS 
 BEGIN
@@ -934,7 +1047,7 @@ END
 GO
 
 -- SỬA NHÂN VIÊN
-CREATE PROCEDURE SUA_NHAN_VIEN (@MaNhanVien varchar(10), @HoTen nvarchar(50), @GioiTinh bit,
+CREATE OR ALTER PROCEDURE SUA_NHAN_VIEN (@MaNhanVien varchar(10), @HoTen nvarchar(50), @GioiTinh bit,
 								@NgaySinh date, @SDT varchar(10), @Email varchar(50))
 AS 
 BEGIN
@@ -945,7 +1058,7 @@ END
 GO
 
 -- XOÁ NHÂN VIÊN
-CREATE PROCEDURE XOA_NHAN_VIEN (@MaNhanVien varchar(10))
+CREATE OR ALTER PROCEDURE XOA_NHAN_VIEN (@MaNhanVien varchar(10))
 AS
 BEGIN 
 	DELETE NHAN_VIEN WHERE MaNhanVien = @MaNhanVien
@@ -953,8 +1066,6 @@ END
 GO
 
 -- QUẢN LÝ ĐĂNG NHẬP
--- THÊM ĐĂNG NHẬP
-
 -- THAY ĐỔI MẬT KHẨU
 CREATE OR ALTER PROCEDURE DOI_MAT_KHAU (@TenDangNhap varchar(20), @MatKhauCu varchar(20), @MatKhauMoi varchar(20))
 AS 

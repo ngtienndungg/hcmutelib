@@ -502,7 +502,8 @@ END
 GO
 
 -- Trigger kiểm tra điều kiện mượn xem độc giả có đang vi phạm chính sách gì không
-CREATE TRIGGER [TRIGGER_KIEM_TRA_DIEU_KIEN_MUON]
+-- Trigger kiểm tra điều kiện mượn xem độc giả có đang vi phạm chính sách gì không
+CREATE OR ALTER TRIGGER [TRIGGER_KIEM_TRA_DIEU_KIEN_MUON]
 ON PHIEU_MUON FOR UPDATE
 AS IF (UPDATE(SoLuong))
 BEGIN
@@ -516,7 +517,7 @@ BEGIN
 		AND GETDATE()>ctmt.NgayHetHan)>0)
 		BEGIN
 			DELETE FROM PHIEU_MUON WHERE MaPhieuMuon = @MaPM
-			PRINT 'Có sách trễ hạn chưa trả'
+			RAISERROR('Có sách trễ hạn chưa trả',16,1)
 		END
 	-- Gán giới hạn sách tham khảo và giáo trình đối với từng đối tượng
 	SELECT @MaLoaiDT = dg.MaDoiTuong FROM inserted i JOIN [DOC_GIA] dg ON i.MaDocGia = dg.MaDocGia
@@ -549,7 +550,7 @@ BEGIN
 		AND s.LoaiSach = 1)>@GioiHanSTK)
 		BEGIN
 			DELETE FROM PHIEU_MUON WHERE MaPhieuMuon = @MaPM
-			PRINT N'Vượt quá sách tham khảo'
+			RAISERROR('Vượt quá sách tham khảo',16,1)
 		END
 	IF ((SELECT COUNT(*) FROM [CHI_TIET_MUON_TRA] ctmt 
 			JOIN inserted i ON i.MaPhieuMuon = ctmt.MaPhieuMuon
@@ -559,7 +560,7 @@ BEGIN
 			AND s.LoaiSach = 0)>@GioiHanGT)
 			BEGIN
 				DELETE FROM PHIEU_MUON WHERE MaPhieuMuon = @MaPM
-				PRINT N'Vượt quá giáo trình'
+				RAISERROR('Vượt quá giáo trình',16,1)
 			END
 	-- Kiểm tra nếu có sách đang mượn trùng lặp
 	IF ((SELECT COUNT(*) FROM [CHI_TIET_MUON_TRA] ctmt 
@@ -569,7 +570,7 @@ BEGIN
 		GROUP BY ctmt.MaSach HAVING COUNT(*)>1)>1)
 		BEGIN
 			DELETE FROM PHIEU_MUON WHERE MaPhieuMuon = @MaPM
-			PRINT N'2 sách trùng lặp'
+			RAISERROR('Sách mượn đã bị trùng!!',16,1)
 		END
 END
 GO
@@ -637,7 +638,7 @@ GO
 
 -- QUẢN LÝ SÁCH
 
--- THÊM SÁCH (VÀ THÊM TÁC GIẢ CỦA SÁCH VÀ BẢNG SACH_TAC_GIA)
+-- 1.1.1 THÊM SÁCH (VÀ THÊM TÁC GIẢ CỦA SÁCH VÀ BẢNG SACH_TAC_GIA)
 CREATE OR ALTER PROCEDURE THEM_SACH (@TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
 							@GiaBia decimal(9,3), @SoLuong int, @MaTacGia1 varchar(10), @MaTacGia2 varchar(10), @MaTacGia3 varchar(10))
 AS 
@@ -683,7 +684,7 @@ BEGIN
 END
 GO
 
--- SỬA SÁCH (VÀ SỬA TÁC GIẢ CỦA SÁCH TRONG BẢNG SACH_TAC_GIA)
+-- 1.1.2 SỬA SÁCH (VÀ SỬA TÁC GIẢ CỦA SÁCH TRONG BẢNG SACH_TAC_GIA)
 CREATE OR ALTER PROCEDURE SUA_SACH (@MaSach varchar(10), @TenSach nvarchar(100), @LoaiSach bit, @MaNhaXuatBan varchar(10), @MaChuyenNganh varchar(10),
 							@GiaBia decimal(9,3), @SoLuong int, @MaTacGia1 varchar(10), @MaTacGia2 varchar(10), @MaTacGia3 varchar(10))
 AS 
@@ -729,7 +730,7 @@ BEGIN
 END
 GO
 
--- XOÁ SÁCH
+-- 1.1.3 XOÁ SÁCH
 CREATE OR ALTER PROCEDURE XOA_SACH (@MaSach varchar(10))
 AS
 BEGIN 
@@ -738,7 +739,7 @@ END
 GO
 
 -- QUẢN LÝ ĐỘC GIẢ
--- THÊM ĐỘC GIẢ
+-- 1.2.1 THÊM ĐỘC GIẢ
 CREATE OR ALTER PROCEDURE THEM_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 							   @SDT varchar(10), @Email varchar(50))
 AS 
@@ -772,7 +773,7 @@ END
 GO
 
 
--- SỬA ĐỘC GIẢ
+-- 1.2.2 SỬA ĐỘC GIẢ
 CREATE OR ALTER PROCEDURE SUA_DOC_GIA (@MaDocGia varchar(10), @MaDoiTuong int, @HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 							   @SDT varchar(10), @Email varchar(50))
 AS 
@@ -807,7 +808,7 @@ BEGIN
 END
 GO
 
--- XOÁ ĐỘC GIẢ
+-- 1.2.3 XOÁ ĐỘC GIẢ
 CREATE OR ALTER PROCEDURE XOA_DOC_GIA (@MaDocGia varchar(10))
 AS
 BEGIN 
@@ -815,7 +816,7 @@ BEGIN
 END
 GO
 
--- GIA HẠN THẺ ĐỘC GIẢ (1 NĂM)
+-- 1.2.4 GIA HẠN THẺ ĐỘC GIẢ (1 NĂM)
 CREATE OR ALTER PROCEDURE GIA_HAN (@MaDocGia varchar(10))
 AS
 BEGIN
@@ -826,7 +827,7 @@ END
 GO
 
 -- QUẢN LÝ MƯỢN TRẢ	
--- THÊM PHIẾU MƯỢN
+-- 1.3.1 THÊM PHIẾU MƯỢN
 CREATE OR ALTER PROCEDURE THEM_PHIEU_MUON (@MaDocGia varchar(10), @MaNhanVien varchar(10))
 AS 
 BEGIN
@@ -835,7 +836,7 @@ BEGIN
 END
 GO
 
--- THÊM SÁCH MƯỢN
+-- 1.3.2 THÊM SÁCH MƯỢN
 CREATE OR ALTER PROCEDURE THEM_SACH_MUON (@MaPhieuMuon varchar(10), @MaSach varchar(10))
 AS
 BEGIN
@@ -843,7 +844,7 @@ BEGIN
 		IF ((SELECT SoLuong FROM SACH WHERE MaSach = @MaSach) = 0)
 		BEGIN
 			RAISERROR('Sách được chọn đã hết!!', 16, 1)
-			RETURN
+			RETURN;
 		END
 		-- (Các điều kiện khác về vi phạm quy định mượn được kiểm tra và raiserror trong trigger)
 		DECLARE @DoiTuong int = (SELECT dg.MaDoiTuong
@@ -880,7 +881,7 @@ BEGIN
 END
 GO
 
--- GIA HẠN THỜI GIAN MƯỢN SÁCH
+-- 1.3.3 GIA HẠN THỜI GIAN MƯỢN SÁCH
 CREATE OR ALTER PROCEDURE GIA_HAN_SACH (@MaPhieuMuon varchar(10), @MaSach varchar(10))
 AS
 BEGIN
@@ -924,7 +925,7 @@ BEGIN
 END 
 GO
 
--- TRẢ SÁCH
+-- 1.3.4 TRẢ SÁCH
 CREATE OR ALTER PROCEDURE TRA_SACH (@MaPhieuMuon varchar(10), @MaNhanVienTra varchar(10), @TinhTrang int, @MaSach varchar(10), @PhatHuHong decimal, @PhatQuaHan decimal)
 AS
 BEGIN
@@ -949,7 +950,7 @@ END
 GO
 
 -- QUẢN LÝ TÁC GIẢ
--- THÊM TÁC GIẢ
+-- 1.4.1 THÊM TÁC GIẢ
 CREATE OR ALTER PROCEDURE THEM_TAC_GIA (@TenTacGia nvarchar(50))
 AS 
 BEGIN
@@ -957,7 +958,7 @@ BEGIN
 END
 GO
 
--- SỬA TÁC GIẢ
+-- 1.4.2 SỬA TÁC GIẢ
 CREATE OR ALTER PROCEDURE SUA_TAC_GIA (@MaTacGia varchar(10), @TenTacGia nvarchar(50))
 AS 
 BEGIN
@@ -967,7 +968,7 @@ BEGIN
 END
 GO
 
--- XOÁ TÁC GIẢ
+-- 1.4.3 XOÁ TÁC GIẢ
 CREATE OR ALTER PROCEDURE XOA_TAC_GIA (@MaTacGia varchar(10))
 AS
 BEGIN 
@@ -977,7 +978,7 @@ GO
 
 
 -- QUẢN LÝ NHÀ XUẤT BẢN
--- THÊM NHÀ XUẤT BẢN
+-- 1.5.1 THÊM NHÀ XUẤT BẢN
 CREATE OR ALTER PROCEDURE THEM_NHA_XUAT_BAN (@TenNhaXuatBan nvarchar(50))
 AS 
 BEGIN
@@ -985,7 +986,7 @@ BEGIN
 END
 GO
 
--- SỬA NHÀ XUẤT BẢN
+-- 1.5.2 SỬA NHÀ XUẤT BẢN
 CREATE OR ALTER PROCEDURE SUA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10), @TenNhaXuatBan nvarchar(50))
 AS 
 BEGIN
@@ -995,7 +996,7 @@ BEGIN
 END
 GO
 
--- XOÁ NHÀ XUẤT BẢN
+-- 1.5.3 XOÁ NHÀ XUẤT BẢN
 CREATE OR ALTER PROCEDURE XOA_NHA_XUAT_BAN (@MaNhaXuatBan varchar(10))
 AS
 BEGIN 
@@ -1005,7 +1006,7 @@ GO
 
 
 -- QUẢN LÝ CHUYÊN NGÀNH
--- THÊM CHUYÊN NGÀNH
+-- 1.6.1 THÊM CHUYÊN NGÀNH
 CREATE OR ALTER PROCEDURE THEM_CHUYEN_NGANH (@TenChuyenNganh nvarchar(50))
 AS 
 BEGIN
@@ -1013,7 +1014,7 @@ BEGIN
 END
 GO
 
--- SỬA CHUYÊN NGÀNH
+-- 1.6.2 SỬA CHUYÊN NGÀNH
 CREATE OR ALTER PROCEDURE SUA_CHUYEN_NGANH (@MaChuyenNganh varchar(10), @TenChuyenNganh nvarchar(50))
 AS 
 BEGIN
@@ -1023,7 +1024,7 @@ BEGIN
 END
 GO
 
--- XOÁ CHUYÊN NGÀNH
+-- 1.6.3 XOÁ CHUYÊN NGÀNH
 CREATE OR ALTER PROCEDURE XOA_CHUYEN_NGANH (@MaChuyenNganh varchar(10))
 AS
 BEGIN 
@@ -1033,31 +1034,84 @@ GO
 
 
 -- QUẢN LÝ NHÂN VIÊN
--- THÊM NHÂN VIÊN (BAO GỒM CẢ THÊM TÀI KHOẢN ĐĂNG NHẬP)
+-- 1.7.1 THÊM NHÂN VIÊN (BAO GỒM CẢ THÊM TÀI KHOẢN ĐĂNG NHẬP)
 CREATE OR ALTER PROCEDURE THEM_NHAN_VIEN (@HoTen nvarchar(50), @GioiTinh bit, @NgaySinh date, 
 								 @SDT varchar(10), @Email varchar(50), @Username varchar(20), @Password varchar(20))
 AS 
 BEGIN
-	DECLARE @MaNhanVien varchar(10) = dbo.Auto_MaNhanVien()
-	INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam)
-	VALUES (@HoTen, @GioiTinh, @NgaySinh, @SDT, @Email, GETDATE())
-	INSERT INTO DANG_NHAP(TenDangNhap, MatKhau, MaNhanVien, LoaiTaiKhoan)
-	VALUES (@Username, @Password, @MaNhanVien, 1)
+	BEGIN TRY
+		BEGIN TRAN
+			IF (DATEDIFF(year, @NgaySinh, GETDATE())<18)
+			BEGIN 
+				RAISERROR(N'Độc giả chưa đủ 18 tuổi!!', 16,1)
+				RETURN
+			END
+			IF (len(@SDT)<>10) 
+			BEGIN
+				RAISERROR(N'Số điện thoại không hợp lệ!!', 16,1)
+				RETURN
+			END
+			IF (@Email NOT LIKE '%___@___%.__%')
+			BEGIN
+				RAISERROR(N'Email không hợp lệ!!', 16,1)
+				RETURN
+			END
+
+			DECLARE @MaNhanVien varchar(10) = dbo.Auto_MaNhanVien()
+			INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam)
+			VALUES (@HoTen, @GioiTinh, @NgaySinh, @SDT, @Email, GETDATE())
+			INSERT INTO DANG_NHAP(TenDangNhap, MatKhau, MaNhanVien, LoaiTaiKhoan)
+			VALUES (@Username, @Password, @MaNhanVien, 1)
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		ROLLBACK
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
--- SỬA NHÂN VIÊN
+-- 1.7.2 SỬA NHÂN VIÊN
 CREATE OR ALTER PROCEDURE SUA_NHAN_VIEN (@MaNhanVien varchar(10), @HoTen nvarchar(50), @GioiTinh bit,
 								@NgaySinh date, @SDT varchar(10), @Email varchar(50))
 AS 
 BEGIN
-	UPDATE NHAN_VIEN
-	SET HoTen = @HoTen, GioiTinh = @GioiTinh, NgaySinh = @NgaySinh, SoDienThoai = @SDT, Email = @Email
-	WHERE MaNhanVien = @MaNhanVien
+	BEGIN TRY
+		BEGIN TRAN
+			IF (DATEDIFF(year, @NgaySinh, GETDATE())<18)
+			BEGIN 
+				RAISERROR(N'Độc giả chưa đủ 18 tuổi!!', 16,1)
+				RETURN
+			END
+			IF (len(@SDT)<>10) 
+			BEGIN
+				RAISERROR(N'Số điện thoại không hợp lệ!!', 16,1)
+				RETURN
+			END
+			IF (@Email NOT LIKE '%___@___%.__%')
+			BEGIN
+				RAISERROR(N'Email không hợp lệ!!', 16,1)
+				RETURN
+			END
+			UPDATE NHAN_VIEN
+			SET HoTen = @HoTen, GioiTinh = @GioiTinh, NgaySinh = @NgaySinh, SoDienThoai = @SDT, Email = @Email
+			WHERE MaNhanVien = @MaNhanVien
+		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		ROLLBACK
+		DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
--- XOÁ NHÂN VIÊN
+-- 1.7.3 XOÁ NHÂN VIÊN
 CREATE OR ALTER PROCEDURE XOA_NHAN_VIEN (@MaNhanVien varchar(10))
 AS
 BEGIN 
@@ -1066,27 +1120,44 @@ END
 GO
 
 -- QUẢN LÝ ĐĂNG NHẬP
--- THAY ĐỔI MẬT KHẨU
+-- 1.8 THAY ĐỔI MẬT KHẨU
 CREATE OR ALTER PROCEDURE DOI_MAT_KHAU (@TenDangNhap varchar(20), @MatKhauCu varchar(20), @MatKhauMoi varchar(20))
 AS 
 BEGIN
-	IF (@MatKhauCu = (SELECT TOP 1 MatKhau FROM DANG_NHAP WHERE TenDangNhap = @TenDangNhap))
-	BEGIN
-		UPDATE DANG_NHAP
-		SET MatKhau = @MatKhauMoi
-		WHERE TenDangNhap = @TenDangNhap
+	BEGIN TRY
+		IF (len(@MatKhauMoi)<8)
+		BEGIN
+			RAISERROR(N'Mật khẩu quá ngắn!!', 16,1)
+			RETURN
+		END
+		IF (@MatKhauCu = (SELECT MatKhau FROM DANG_NHAP WHERE TenDangNhap = @TenDangNhap))
+		BEGIN
+			UPDATE DANG_NHAP
+			SET MatKhau = @MatKhauMoi
+			WHERE TenDangNhap = @TenDangNhap
 
-		DECLARE @sqlString varchar(MAX) = 'ALTER LOGIN [' + @TenDangNhap +'] WITH PASSWORD = N' + QUOTENAME(@MatKhauMoi,'''')
-		+ 'OLD_PASSWORD = N' + QUOTENAME(@MatKhauCu,'''') + N';';
-		EXEC (@sqlString)
-	END
-	ELSE PRINT 'Sai mật khẩu'
+			DECLARE @sqlString varchar(MAX) = 'ALTER LOGIN [' + @TenDangNhap +'] WITH PASSWORD = N' + QUOTENAME(@MatKhauMoi,'''')
+			+ 'OLD_PASSWORD = N' + QUOTENAME(@MatKhauCu,'''') + N';';
+			EXEC (@sqlString)
+		END
+		ELSE 
+		BEGIN
+			RAISERROR(N'Sai mật khẩu!!', 16,1)
+			RETURN
+		END
+	END TRY
+	BEGIN CATCH
+	DECLARE @ErrorMessage NVARCHAR(MAX) = ERROR_MESSAGE()
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY()
+        DECLARE @ErrorState INT = ERROR_STATE()
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
 -- FUNCTION --
 
--- TÌM KIẾM ĐỘC GIẢ THEO MÃ ĐỘC GIẢ
+-- 2.2.1 TÌM KIẾM ĐỘC GIẢ THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1094,7 +1165,7 @@ AS RETURN (
 	WHERE [Mã độc giả] = @MaDocGia)
 GO
 
--- TÌM KIẾM SÁCH THEO TÊN
+-- 2.2.2 TÌM KIẾM SÁCH THEO TÊN
 CREATE FUNCTION TIM_KIEM_SACH (@TenSach nvarchar(100))
 RETURNS TABLE
 AS RETURN (
@@ -1102,7 +1173,7 @@ AS RETURN (
 	WHERE [Tên sách] = @TenSach)
 GO
 
--- TÌM KIẾM NHÂN VIÊN THEO TÊN
+-- 2.2.3 TÌM KIẾM NHÂN VIÊN THEO TÊN
 CREATE FUNCTION TIM_KIEM_NHAN_VIEN (@TenNhanVien nvarchar(50))
 RETURNS TABLE
 AS RETURN (
@@ -1110,7 +1181,7 @@ AS RETURN (
 	WHERE [Họ tên] = @TenNhanVien)
 GO
 
--- TÌM KIẾM CÁC SÁCH ĐANG MƯỢN THEO MÃ ĐỘC GIẢ
+-- 2.2.4 TÌM KIẾM CÁC SÁCH ĐANG MƯỢN THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_SACH_DANG_MUON_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1118,7 +1189,7 @@ AS RETURN (
 	WHERE [Mã người mượn] = @MaDocGia)
 GO
 
--- TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ ĐỘC GIẢ
+-- 2.2.5 TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_SACH_DA_TRA_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1126,7 +1197,7 @@ AS RETURN (
 	WHERE [Mã người mượn] = @MaDocGia)
 GO
 
--- TÌM KIẾM TOÀN BỘ MƯỢN TRẢ THEO MÃ ĐỘC GIẢ
+-- 2.2.6 TÌM KIẾM TOÀN BỘ MƯỢN TRẢ THEO MÃ ĐỘC GIẢ
 CREATE FUNCTION TIM_KIEM_MUON_TRA_MA_DOC_GIA (@MaDocGia varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1134,7 +1205,7 @@ AS RETURN (
 	WHERE [Mã người mượn] = @MaDocGia)
 GO
 
--- TÌM KIẾM CÁC SÁCH ĐANG MƯỢN THEO MÃ PHIẾU MƯỢN
+-- 2.2.7 TÌM KIẾM CÁC SÁCH ĐANG MƯỢN THEO MÃ PHIẾU MƯỢN
 CREATE FUNCTION TIM_KIEM_SACH_DANG_MUON_PHIEU_MUON (@MaPhieuMuon varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1142,7 +1213,7 @@ AS RETURN (
 	WHERE [Mã phiếu mượn] = @MaPhieuMuon)
 GO
 
--- TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ PHIẾU MƯỢN
+-- 2.2.8 TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ PHIẾU MƯỢN
 CREATE FUNCTION TIM_KIEM_SACH_DA_TRA_PHIEU_MUON(@MaPhieuMuon varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1150,7 +1221,7 @@ AS RETURN (
 	WHERE [Mã phiếu mượn] = @MaPhieuMuon)
 GO
 
--- TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ PHIẾU MƯỢN
+-- 2.2.9 TÌM KIẾM CÁC SÁCH ĐÃ TRẢ THEO MÃ PHIẾU MƯỢN
 CREATE FUNCTION TIM_KIEM_MUON_TRA_PHIEU_MUON (@MaPhieuMuon varchar(10))
 RETURNS TABLE
 AS RETURN (
@@ -1170,7 +1241,7 @@ END
 GO
 
 
--- TÍNH TIỀN PHẠT KHI LÀM MẤT/ HƯ HỎNG
+-- 2.4.1 TÍNH TIỀN PHẠT THEO TÌNH TRẠNG KHI TRẢ SÁCH
 CREATE FUNCTION TINH_PHAT_HU_HONG (@MaSach varchar(10), @TinhTrang int)
 RETURNS DECIMAL
 AS
@@ -1182,7 +1253,7 @@ BEGIN
 END
 GO
 
--- TÍNH TIỀN PHẠT TRỄ HẠN
+-- 2.4.2 TÍNH TIỀN PHẠT TRỄ HẠN KHI TRẢ SÁCH
 CREATE OR ALTER FUNCTION TINH_PHAT_TRE_HAN (@NgayHetHan date)
 RETURNS DECIMAL
 AS
@@ -1195,7 +1266,6 @@ GO
 
 
 CREATE ROLE NhanVien
---Gán các quyền trên table cho các tài khoản đăng nhập với vai trò Nhân viên
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON CHI_TIET_MUON_TRA TO NhanVien
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON CHUYEN_NGANH TO NhanVien
 GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES ON DOC_GIA TO NhanVien
@@ -1208,7 +1278,7 @@ GRANT SELECT, REFERENCES ON DOI_TUONG_DOC_GIA TO NhanVien
 GRANT SELECT, REFERENCES ON TINH_TRANG_SACH TO NhanVien
 GRANT SELECT, UPDATE, REFERENCES ON DANG_NHAP TO NhanVien
 GRANT SELECT, REFERENCES ON NHAN_VIEN TO NhanVien
--- Gán quyền thực thi trên các procedure, function cho role Staff
+-- Gán quyền thực thi trên các procedure, function cho role NhanVien
 GRANT EXECUTE TO NhanVien
 GRANT SELECT TO NhanVien
 DENY UPDATE, INSERT, DELETE ON NHAN_VIEN to NhanVien
@@ -1295,16 +1365,10 @@ INSERT INTO TAC_GIA (TenTacGia) VALUES (N'Nguyễn Thế Bá') -- Quy hoạch x�
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Nguyễn Tiến Dũng', 1, '2002/03/30', '0982087932', 'tiendung@gmail.com', '2023/01/01')
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Nguyễn Hoàng Quang Trung', 1, '2002/01/26', '0983334910', 'nhqtrung@gmail.com', '2023/01/01')
 INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Lê Ngọc Linh', 0, '2002/02/03', '0983924345', 'ngoclinh@gmail.com', '2023/01/10')
-/* INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Hoàng Trọng Thắng', 1, '2002/02/03', '0983924567', 'htthang@gmail.com', '2023/01/10')
-INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Đỗ Ngọc Quỳnh', 0, '2002/02/01', '0983924561', 'ngquynh@gmail.com', '2023/01/10')
-INSERT INTO NHAN_VIEN (HoTen, GioiTinh, NgaySinh, SoDienThoai, Email, NgayVaoLam) VALUES (N'Lê Thu Hằng', 0, '2002/02/23', '0983924562', 'hangle@gmail.com', '2023/01/10') */
 
 INSERT INTO DANG_NHAP VALUES ('NV001', 'admin', 'admin123', 0)
 INSERT INTO DANG_NHAP VALUES ('NV002', 'hoangtrung', 'trung123', 1)
 INSERT INTO DANG_NHAP VALUES ('NV003', 'ngoclinh', 'ngoclinh123', 1)
-/* INSERT INTO DANG_NHAP VALUES ('NV004', 'trongthang', 'trongthang0123', 1)
-INSERT INTO DANG_NHAP VALUES ('NV005', 'ngocquynh', 'quynh000', 1)
-INSERT INTO DANG_NHAP VALUES ('NV006', 'thuhang', '00001111', 1) */
 
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Thiết kế ô tô', 0, 'NXB0001', 'CN0003', 60000, 120)
 INSERT INTO SACH (TenSach, LoaiSach, MaNhaXuatBan, MaChuyenNganh, GiaBia, SoLuong) VALUES (N'Thực hành cơ sở và ứng dụng IoT', 0, 'NXB0001', 'CN0002', 45000, 80)
@@ -1334,28 +1398,5 @@ INSERT INTO SACH_TAC_GIA VALUES ('SACH00008', 'TG0015')
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00008', 'TG0016')
 INSERT INTO SACH_TAC_GIA VALUES ('SACH00009', 'TG0017')
 
-/* INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110127', 'NV002', '2023/02/01')
-INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110000', 'NV003', '2023/03/01')
-INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20149023', 'NV001', '2023/03/05')
-INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('20110127', 'NV003', '2023/03/09')
-INSERT INTO PHIEU_MUON (MaDocGia, MaNhanVien, NgayMuon) VALUES ('17199023', 'NV006', '2023/03/09')
-
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000001', 'SACH00004', '2024/03/22')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000001', 'SACH00003', '2024/03/23')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000002', 'SACH00005', '2024/04/01')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000002', 'SACH00001', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000003', 'SACH00002', '2024/03/25')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000004', 'SACH00002', '2024/03/25')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000004', 'SACH00005', '2024/03/22')
--- INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000004', 'SACH00002', '2023/03/19')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000004', 'SACH00001', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00006', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00007', '2024/03/30')
-/* INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00008', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00009', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00010', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00011', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00012', '2024/03/30')
-INSERT INTO CHI_TIET_MUON_TRA (MaPhieuMuon, MaSach, NgayHetHan) VALUES ('000000005', 'SACH00013', '2024/03/30') */ */
 
 

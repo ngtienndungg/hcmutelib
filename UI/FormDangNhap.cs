@@ -13,23 +13,19 @@ namespace LibraryManagement
 
         private void btDangNhap_Click(object sender, EventArgs e)
         {
-            String username = tbTenDangNhap.Text.ToString();
-            String password = tbMatKhau.Text.ToString();
+            DbHelper.Username = tbTenDangNhap.Text.ToString();
+            DbHelper.Password = tbMatKhau.Text.ToString();
             try
             {
-                String connectionString = @"Data Source = (local); Initial Catalog = QuanLyThuVien;
-                                        User ID = " + username + "; Password = " + password;
-                SqlConnection conn = new SqlConnection(connectionString);
+                SqlConnection conn = DbHelper.Connect();
                 conn.Open();
                 SqlCommand cmd = new SqlCommand("LAY_MA_NHAN_VIEN", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT [dbo].[LAY_MA_NHAN_VIEN] (@Username)";
-                cmd.Parameters.AddWithValue("@Username", username);
+                cmd.Parameters.AddWithValue("@Username", DbHelper.Username);
 
                 object staffId = cmd.ExecuteScalar();
                 DbHelper.MaNhanVien = staffId.ToString();
-                DbHelper.Username = username;
-                DbHelper.Password = password;
 
                 FormTrangChu formTrangChu = new FormTrangChu(); 
                 this.Hide();

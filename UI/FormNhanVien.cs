@@ -118,29 +118,36 @@ namespace LibraryManagement.UI
 
         private void btCapNhat_Click(object sender, EventArgs e)
         {
-            SqlConnection conn = DbHelper.Connect();
-            conn.Open();
+            try
+            {
+                SqlConnection conn = DbHelper.Connect();
+                conn.Open();
 
-            SqlCommand cmd = new SqlCommand("SUA_NHAN_VIEN", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("SUA_NHAN_VIEN", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = tbMa.Text.ToString();
-            cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar).Value = tbTen.Text.ToString();
-            if (cbGioiTinh.SelectedItem.ToString() == "Nữ")
-                cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 0;
-            else
-                cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 1;
+                cmd.Parameters.Add("@MaNhanVien", SqlDbType.VarChar).Value = tbMa.Text.ToString();
+                cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar).Value = tbTen.Text.ToString();
+                if (cbGioiTinh.SelectedItem.ToString() == "Nữ")
+                    cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 0;
+                else
+                    cmd.Parameters.Add("@GioiTinh", SqlDbType.Bit).Value = 1;
 
-            DateTime date = DateTime.ParseExact(tbNgaySinh.Text, "dd/MM/yyyy", null);
-            cmd.Parameters.Add("@NgaySinh", SqlDbType.Date).Value = date;
-            cmd.Parameters.Add("@SDT", SqlDbType.VarChar).Value = tbSDT.Text.ToString();
-            cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = tbEmail.Text.ToString();
+                DateTime date = DateTime.ParseExact(tbNgaySinh.Text, "dd/MM/yyyy", null);
+                cmd.Parameters.Add("@NgaySinh", SqlDbType.Date).Value = date;
+                cmd.Parameters.Add("@SDT", SqlDbType.VarChar).Value = tbSDT.Text.ToString();
+                cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = tbEmail.Text.ToString();
 
-            cmd.ExecuteNonQuery();
-            MessageBox.Show("Thay đổi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            conn.Close();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Thay đổi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                conn.Close();
 
-            LoadData();
+                LoadData();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void checkBoxConHan_CheckedChanged(object sender, EventArgs e)

@@ -142,6 +142,7 @@ namespace LibraryManagement
 
         private void btGiaHan_Click(object sender, EventArgs e)
         {
+            // THỰC THI PROCEDURE GIA_HAN
             SqlConnection conn = DbHelper.Connect();
             conn.Open();
 
@@ -231,8 +232,10 @@ namespace LibraryManagement
             dialogThemDocGia.ShowDialog();
         }
 
+
         private void btXoa_Click(object sender, EventArgs e)
         {
+            // THỰC THI PROCEDURE XOA_DOC_GIA
             SqlConnection conn = DbHelper.Connect();
             conn.Open();
 

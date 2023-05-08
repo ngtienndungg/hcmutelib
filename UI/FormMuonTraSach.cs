@@ -269,6 +269,7 @@ namespace LibraryManagement
 
         private void btGiaHan_Click(object sender, EventArgs e)
         {
+            // THỰC THI PROCEDURE GIA_HAN_SACH VÀ BẮT LỖI TỪ RAISERROR
             try
             {
                 SqlConnection conn = DbHelper.Connect();

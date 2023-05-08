@@ -25,26 +25,33 @@ namespace LibraryManagement.UI
 
         private void btChapNhan_Click(object sender, EventArgs e)
         {
-            if (tbMoi.Text.Equals(tbXacNhan.Text))
+            try
             {
-                SqlConnection conn = DbHelper.Connect();
-                conn.Open();
+                if (tbMoi.Text.Equals(tbXacNhan.Text))
+                {
+                    SqlConnection conn = DbHelper.Connect();
+                    conn.Open();
 
-                SqlCommand cmd = new SqlCommand("DOI_MAT_KHAU", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                    SqlCommand cmd = new SqlCommand("DOI_MAT_KHAU", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar).Value = DbHelper.Username;
-                cmd.Parameters.Add("@MatKhauCu", SqlDbType.VarChar).Value = tbCu.Text;
-                cmd.Parameters.Add("@MatKhauMoi", SqlDbType.VarChar).Value = tbMoi.Text;
-                cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar).Value = DbHelper.Username;
+                    cmd.Parameters.Add("@MatKhauCu", SqlDbType.VarChar).Value = tbCu.Text;
+                    cmd.Parameters.Add("@MatKhauMoi", SqlDbType.VarChar).Value = tbMoi.Text;
+                    cmd.ExecuteNonQuery();
 
-                MessageBox.Show("Đổi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                conn.Close();
-                this.Close();
+                    MessageBox.Show("Đổi thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    conn.Close();
+                    this.Close();
+                }
+                else
+                    MessageBox.Show("Mật khẩu mới không khớp", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("Mật khẩu mới không khớp", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
